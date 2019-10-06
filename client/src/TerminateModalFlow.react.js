@@ -220,6 +220,8 @@ export default class TerminateModalFlow extends React.Component {
             resetTerminateAccountStatus={this.props.resetTerminateAccountStatus}
           />
         )
+      default:
+          return null
     }
   }
 }
