@@ -138,7 +138,7 @@ export default class MockDataProvider extends React.Component {
         })
       },
 
-      rediectToHomepage: () => {
+      redirectToHomepage: () => {
         window.location = 'http://www.example.com/'
       },
     }
