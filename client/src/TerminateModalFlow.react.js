@@ -161,11 +161,12 @@ export default class TerminateModalFlow extends React.Component {
   renderTransferModal() {
     const transferData = this.getTransferData()
     const totalAssigned = transferData.length
+    const hasErrors = transferData.some(el => el.status === "error")
     const totalWorkspaceRequiredTransfer = this.props.requiredTransferWorkspaces
       .length
     const totalWorkspaceDelete = this.props.deleteWorkspaces.length
     const disabledNextPage =
-      totalAssigned < totalWorkspaceRequiredTransfer || this.props.loading
+     totalAssigned < totalWorkspaceRequiredTransfer || hasErrors || this.props.loading
     return (
       <TransferOwnershipModal
         nextPage={this.onSetNextPage}
@@ -179,7 +180,7 @@ export default class TerminateModalFlow extends React.Component {
         >
           <AssignOwnership
             user={this.props.user}
-            transferData={this.getTransferData()}
+            transferData={transferData}
             onAssignToUser={this.onAssignToUser}
           />
         </WorkspaceGroupRows>
