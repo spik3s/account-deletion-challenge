@@ -36,14 +36,13 @@ export default class TerminateModalFlow extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchRelatedWorkspaces()
-  }
-
-  componentWillReceiveProps(nextProps) {
-    if (LoadState.isLoaded(nextProps.terminateAccountStatus)) {
+    if (LoadState.isLoaded(this.props.terminateAccountStatus)) {
       this.props.redirectToHomepage()
+    } else {
+      this.props.fetchRelatedWorkspaces()
     }
   }
+
 
   getTransferData = () => {
     const { workspaceId, toUserId, status } = this.props.transferOwnershipStatus
