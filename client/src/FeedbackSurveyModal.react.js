@@ -99,7 +99,7 @@ class FeedbackSurveyModal extends React.PureComponent {
                 <input
                   type="checkbox"
                   checked={this.state[item.stack]}
-                  onClick={() => this.onToggleFeedback(item.stack)}
+                  onChange={() => this.onToggleFeedback(item.stack)}
                 />
                 {item.title}
               </label>
