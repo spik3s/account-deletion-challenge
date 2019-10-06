@@ -36,7 +36,7 @@ export default class AssignOwnership extends React.Component {
           onChange={this.onAssignToUser}
           style={{ minWidth: '3rem' }}
         >
-          <option value="" disabled />
+          <option value="" disabled >Select user</option>
           {this.props.workspace.transferableMembers.map(user => (
             <option key={user._id} value={user._id}>
               {user.name}
