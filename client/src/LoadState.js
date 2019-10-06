@@ -10,7 +10,7 @@ const fetching = { status: STATUS_FETCHING }
 export const completed = { status: STATUS_COMPLETED }
 const outdated = { status: STATUS_OUTDATED }
 const refreshing = { status: STATUS_REFRESHING }
-export const error = STATUS_ERROR
+export const error = { status: STATUS_ERROR }
 const initWithError = error => ({ status: STATUS_ERROR, error })
 
 export const isError = state => state.status === STATUS_ERROR
