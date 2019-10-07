@@ -24,7 +24,7 @@ export default class TerminateModalFlow extends React.Component {
 		// deleteWorkspaces: PropTypes.array,
 		// fetchRelatedWorkspaces: PropTypes.func,
 		// transferOwnershipStatus: PropTypes.object,
-		// transferOwnership: PropTypes.func,
+		// transferOwnershipCheck: PropTypes.func,
 		// terminateAccount: PropTypes.func,
 		// terminateAccountError: PropTypes.func,
 		// terminateAccountStatus: PropTypes.object,
@@ -101,7 +101,7 @@ export default class TerminateModalFlow extends React.Component {
 	};
 
 	// TODO: I think we should rename this function... we don't transfer here anything, we just check if it's possible
-	transferOwnership = (user, workspace) => {
+	transferOwnershipCheck = (user, workspace) => {
 		this.setState(
 			{
 				transferOwnershipStatus: {
@@ -315,7 +315,7 @@ export default class TerminateModalFlow extends React.Component {
 	};
 
 	onAssignToUser = (workspace, user) => {
-		this.transferOwnership(user, workspace);
+		this.transferOwnershipCheck(user, workspace);
 		this.assignToUser(workspace, user);
 	};
 
