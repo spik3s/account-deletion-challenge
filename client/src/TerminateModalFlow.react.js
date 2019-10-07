@@ -13,12 +13,12 @@ import AssignOwnership from "./AssignOwnership.react";
 
 export default class TerminateModalFlow extends React.Component {
 	static propTypes = {
-    user: PropTypes.exact({
-      _id: PropTypes.string.isRequired, // not sure about the naming convention here. Leaving unchange since I assume that's the format dictated by the rest of the app
-      name: PropTypes.string.isRequired,
-      email: PropTypes.string.isRequired,
-    }).isRequired,
-    
+		user: PropTypes.exact({
+			_id: PropTypes.string.isRequired, // not sure about the naming convention here. Leaving unchange since I assume that's the format dictated by the rest of the app
+			name: PropTypes.string.isRequired,
+			email: PropTypes.string.isRequired
+		}).isRequired
+
 		// loading: PropTypes.bool,
 		// requiredTransferWorkspaces: PropTypes.array,
 		// deleteWorkspaces: PropTypes.array,
@@ -37,8 +37,8 @@ export default class TerminateModalFlow extends React.Component {
 		transferData: [],
 		feedbacks: [],
 		comment: "",
-    email: "",
-    /* State moved from MockDataProvider */
+		email: "",
+		/* State moved from MockDataProvider */
 		loading: true,
 		requiredTransferWorkspaces: [],
 		deleteWorkspaces: [],
@@ -47,8 +47,15 @@ export default class TerminateModalFlow extends React.Component {
 			toUserId: null,
 			...LoadState.pending
 		},
-    terminateAccountStatus: {}
-     /* END State moved from MockDataProvider */
+		terminateAccountStatus: {}
+		/* END State moved from MockDataProvider */
+	};
+
+	fetchAbortController = new AbortController();
+
+	handleFetchErrors = response => {
+		if (!response.ok) throw Error(response.status);
+		return response;
 	};
 
 	componentDidMount() {
@@ -59,21 +66,38 @@ export default class TerminateModalFlow extends React.Component {
 		}
 	}
 
+	componentWillUnmount() {
+		this.fetchAbortController.abort();
+	}
+
 	/* METHODS MOVED FROM MockDataProvider */
 
-	fetchRelatedWorkspaces = async () => {
-		const response = await window.fetch(
-			`https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/fetchWorkspaces?userId=${this.props.user._id}`,
-			{
-				mode: "cors"
-			}
-		);
-		const data = await response.json();
-		this.setState({
-			loading: false,
-			requiredTransferWorkspaces: data.requiredTransferWorkspaces,
-			deleteWorkspaces: data.deleteWorkspaces
-		});
+	fetchRelatedWorkspaces = () => {
+		window
+			.fetch(
+				`https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/fetchWorkspaces?userId=${this.props.user._id}`,
+				{
+					method: "GET",
+					mode: "cors",
+					signal: this.fetchAbortController.signal
+				}
+			)
+			.then(this.handleFetchErrors)
+			.then(response => response.json())
+			.then(data => {
+				this.setState({
+					loading: false,
+					requiredTransferWorkspaces: data.requiredTransferWorkspaces,
+					deleteWorkspaces: data.deleteWorkspaces
+				});
+			})
+			.catch(err => {
+				if (err.name === "AbortError") {
+					console.info("Workspaces Fetch request was aborted.");
+				}
+
+				console.error(err.message);
+			});
 	};
 
 	// TODO: I think we should rename this function... we don't transfer here anything, we just check if it's possible
@@ -82,73 +106,102 @@ export default class TerminateModalFlow extends React.Component {
 			{
 				transferOwnershipStatus: {
 					workspaceId: workspace.spaceId,
-					toUserId: this.state.user._id,
+					toUserId: this.props.user._id,
 					...LoadState.loading
 				}
 			},
-			async () => {
-				const response = await window.fetch(
-					"https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/checkOwnership",
-					{
-						method: "POST",
-						mode: "cors",
-						headers: {
-							"Content-Type": "application/json"
-						},
-						body: JSON.stringify({
-							workspaceId: workspace.spaceId,
-							fromUserId: this.state.user._id,
-							toUserId: user._id
-						})
-					}
-				);
-				if (response.status === 200) {
-					this.setState({
-						transferOwnershipStatus: {
-							workspaceId: workspace.spaceId,
-							toUserId: user._id,
-							...LoadState.completed
+			() => {
+				window
+					.fetch(
+						"https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/checkOwnership",
+						{
+							method: "POST",
+							mode: "cors",
+							signal: this.fetchAbortController.signal,
+							headers: {
+								"Content-Type": "application/json"
+							},
+							body: JSON.stringify({
+								workspaceId: workspace.spaceId,
+								fromUserId: this.props.user._id,
+								toUserId: user._id
+							})
 						}
-					});
-				} else {
-					this.setState({
-						transferOwnershipStatus: {
-							workspaceId: workspace.spaceId,
-							toUserId: user._id,
-							...LoadState.error
+					)
+					.then(this.handleFetchErrors)
+					// .then(response => response.text())
+					.then(response => {
+						// TODO: Better error handling here. The original idea might have been better.
+						if (response.status === 200) {
+							this.setState({
+								transferOwnershipStatus: {
+									workspaceId: workspace.spaceId,
+									toUserId: user._id,
+									...LoadState.completed
+								}
+							});
 						}
+					})
+					.catch(err => {
+						if (err.name === "AbortError") {
+							console.info(
+								"Check Ownership Fetch request was aborted."
+							);
+						}
+
+						// TODO: What about aborting, won't this cause issues?
+						this.setState({
+							transferOwnershipStatus: {
+								workspaceId: workspace.spaceId,
+								toUserId: user._id,
+								...LoadState.error
+							}
+						});
+						console.error("Error!", err);
 					});
-				}
 			}
 		);
 	};
 
-	terminateAccount = async payload => {
+	terminateAccount = payload => {
 		// Note that there is 30% chance of getting error from the server
-		const response = await window.fetch(
-			"https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/terminateAccount",
-			{
-				method: "POST",
-				mode: "cors",
-				headers: {
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify(payload)
-			}
-		);
-		if (response.status === 200) {
-			this.setState({
-				terminateAccountStatus: LoadState.handleLoaded(
-					this.state.terminateAccountStatus
-				)
+		window
+			.fetch(
+				"https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/terminateAccount",
+				{
+					method: "POST",
+					mode: "cors",
+					signal: this.fetchAbortController.signal,
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify(payload)
+				}
+			)
+			.then(this.handleFetchErrors)
+			.then(response => {
+				if (response.status === 200) {
+					this.setState({
+						terminateAccountStatus: LoadState.handleLoaded(
+							this.state.terminateAccountStatus
+						)
+					});
+				}
+			})
+			.catch(err => {
+				if (err.name === "AbortError") {
+					console.info(
+						"Terminate Account Fetch request was aborted."
+					);
+				}
+				console.error("Error!", err.message);
+
+				this.setState({
+					terminateAccountStatus: LoadState.handleLoadFailedWithError(
+						"Error deleting account"
+					)(this.state.terminateAccountStatus)
+				});
 			});
-		} else {
-			this.setState({
-				terminateAccountStatus: LoadState.handleLoadFailedWithError(
-					"Error deleting account"
-				)(this.state.terminateAccountStatus)
-			});
-		}
 	};
 
 	terminateAccountError = error => {
@@ -167,8 +220,8 @@ export default class TerminateModalFlow extends React.Component {
 
 	redirectToHomepage = () => {
 		window.location = "http://www.example.com/";
-  };
-  
+	};
+
 	/* END METHODS MOVED FROM MockDataProvider */
 
 	getTransferData = () => {
