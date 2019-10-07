@@ -107,7 +107,7 @@ export default class TerminateModalFlow extends React.Component {
 				transferOwnershipStatus: {
 					workspaceId: workspace.spaceId,
 					toUserId: this.props.user._id,
-					...LoadState.loading
+					...LoadState.fetching
 				}
 			},
 			() => {
