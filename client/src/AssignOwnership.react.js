@@ -14,6 +14,8 @@ export default class AssignOwnership extends React.Component {
 
   getAddedMember() {
     const { workspace, transferData } = this.props
+    // TODO: replace lodash chain with regular stuff
+    // TODO: We need to display some errors if LoadState.isError
     return _.chain(transferData)
       .reject(LoadState.isError || LoadState.isLoading)
       .find(assign => assign.workspaceId === workspace.spaceId)

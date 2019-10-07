@@ -21,6 +21,9 @@ class ConfirmEmailModal extends React.PureComponent {
   }
 
   getStateButton = () => {
+
+    // TODO: this.props.terminateAccountStatus is currently showing 'pending'. why and how we fix it?
+    // TODO: validate email by comparing it with e-mail in user object
     if (isLoading(this.props.terminateAccountStatus)) return true
     if (this.state.markedConsequences && this.props.email) return false
     return true

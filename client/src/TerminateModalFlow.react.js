@@ -109,6 +109,7 @@ export default class TerminateModalFlow extends React.Component {
       this.setState({ activeModal: 'feedback' })
     } else if (this.state.activeModal === 'feedback') {
       const feedbackRefs = this.getRefsValues(this.refs, 'feedbackForm')
+      // TODO: First submit the survey, if no errors, then proceed. Currently, we will be swallowing errors
       this.setState({
         activeModal: 'confirm',
         feedbacks: _.map(feedbackRefs, ref => ({

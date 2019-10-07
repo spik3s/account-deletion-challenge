@@ -49,6 +49,7 @@ export default class MockDataProvider extends React.Component {
         ...LoadState.pending,
       },
 
+      // TODO: I think we should rename this function... we don't transfer here anything, we just check if it's possible
       transferOwnership: (user, workspace) => {
         this.setState(
           {
