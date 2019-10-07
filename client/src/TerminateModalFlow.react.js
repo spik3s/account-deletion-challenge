@@ -42,7 +42,6 @@ export default class TerminateModalFlow extends React.Component {
 		loading: true,
 		requiredTransferWorkspaces: [],
 		deleteWorkspaces: [],
-		transferableMembers: [],
 		transferOwnershipStatus: {
 			workspaceId: null,
 			toUserId: null,
