@@ -116,8 +116,8 @@ export default class TerminateModalFlow extends React.Component {
           comment: ref.value,
         })),
       })
+      this.submitSurvey()
     }
-    this.submitSurvey()
   }
 
   onGoToPreviousStep = () => {
