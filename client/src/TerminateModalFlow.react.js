@@ -100,7 +100,6 @@ export default class TerminateModalFlow extends React.Component {
 			});
 	};
 
-	// TODO: I think we should rename this function... we don't transfer here anything, we just check if it's possible
 	transferOwnershipCheck = (workspace, user) => {
 		this.setState(
 			{
