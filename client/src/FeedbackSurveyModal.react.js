@@ -18,9 +18,6 @@ class FeedbackSurveyModal extends React.PureComponent {
 		this.state = this.setInitialState();
 	}
 
-	state = {
-		isFocusCommentBox: false
-	};
 
 	setInitialState = () => {
 		return feedbackSurveyItems
@@ -41,9 +38,6 @@ class FeedbackSurveyModal extends React.PureComponent {
 		this.setState({ [stack]: !this.state[stack] });
 	}
 
-	onFocusCommentBox = () => {
-		this.setState({ isFocusCommentBox: !this.state.isFocusCommentBox });
-	};
 
 	renderInputForm({ stack, canComment, placeHolder }) {
 		const prefill = placeHolder && canComment ? placeHolder : "";
@@ -82,13 +76,9 @@ class FeedbackSurveyModal extends React.PureComponent {
 					<textarea
 						type="text"
 						name="comment"
-						style={
-							this.state.isFocusCommentBox
-								? { border: "1px solid blue" }
-								: { border: "1px solid black" }
-						}
-						onChange={this.props.onChangeComment}
-						value={this.props.comment}
+						id="comments-box"
+						onChange={this.onChangeComment}
+						value={this.state.comment}
 					/>
 				</div>
 			</div>
