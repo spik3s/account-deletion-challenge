@@ -249,6 +249,11 @@ export default class TerminateModalFlow extends React.Component {
 		return updateData;
 	};
 
+	onAssignToUser = (workspace, user) => {
+		this.transferOwnershipCheck(user, workspace);
+		this.assignToUser(workspace, user);
+	};
+
 	assignToUser = (workspace, user) => {
 		const assigns = _.reject(
 			this.getTransferData(),
@@ -312,11 +317,6 @@ export default class TerminateModalFlow extends React.Component {
 		if (this.state.activeModal === "confirm") {
 			this.setState({ activeModal: "feedback" });
 		}
-	};
-
-	onAssignToUser = (workspace, user) => {
-		this.transferOwnershipCheck(user, workspace);
-		this.assignToUser(workspace, user);
 	};
 
 	onChangeComment = e => {
