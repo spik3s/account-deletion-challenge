@@ -7,48 +7,52 @@ class FeedbackSurveyModal extends React.PureComponent {
 	static propTypes = {
 		onSubmit: PropTypes.func,
 		onBackButton: PropTypes.func,
+		onChangeFeedbackText: PropTypes.func,
+		onChangeFeedbackCheckbox: PropTypes.func,
+		isChecked: PropTypes.func,
 		title: PropTypes.node,
 		showCommentForm: PropTypes.bool,
-		comment: PropTypes.string,
+		feedbackData: PropTypes.exact({
+			answers: PropTypes.array.isRequired,
+			comment: PropTypes.string.isRequired
+		}).isRequired,
 		onChangeComment: PropTypes.func
 	};
 
-	constructor(props) {
-		super(props);
-		this.state = this.setInitialState();
-	}
-
-
-	setInitialState = () => {
-		return feedbackSurveyItems
-			.map(item => [item.stack, false])
-			.reduce((acc, val) => ((acc[val[0]] = val[1]), acc), {});
-	};
-
 	hasAllUnchecked = () => {
-		const FeedbackSurveyItems = this.state;
-		return (
-			Object.keys(FeedbackSurveyItems).every(
-				val => FeedbackSurveyItems[val] === false
-			) && !this.state.isFocusCommentBox
-		);
+		return !(this.props.feedbackData.answers.length > 0);
 	};
-
-	onToggleFeedback(stack) {
-		this.setState({ [stack]: !this.state[stack] });
-	}
-
 
 	renderInputForm({ stack, canComment, placeHolder }) {
 		const prefill = placeHolder && canComment ? placeHolder : "";
-		return !this.state[stack] ? null : (
+
+		return !this.props.isChecked(stack) ? null : (
 			<div style={!canComment ? { display: "none" } : null}>
 				<input
 					type="text"
 					name={stack}
-					ref={stack}
+					// ref={stack}
+					onChange={this.props.onChangeFeedbackText}
 					placeholder={prefill}
 				/>
+			</div>
+		);
+	}
+
+	renderCommentForm() {
+		if (!this.props.showCommentForm) return;
+		return (
+			<div style={{ marginTop: "2rem" }}>
+				Comments:
+				<div>
+					<textarea
+						type="text"
+						name="comment"
+						id="comments-box"
+						onChange={this.props.onChangeComment}
+						value={this.props.feedbackData.comment}
+					/>
+				</div>
 			</div>
 		);
 	}
@@ -67,37 +71,20 @@ class FeedbackSurveyModal extends React.PureComponent {
 		);
 	}
 
-	renderCommentForm() {
-		if (!this.props.showCommentForm) return;
-		return (
-			<div style={{ marginTop: "2rem" }}>
-				Comments:
-				<div>
-					<textarea
-						type="text"
-						name="comment"
-						id="comments-box"
-						onChange={this.onChangeComment}
-						value={this.state.comment}
-					/>
-				</div>
-			</div>
-		);
-	}
-
 	render() {
 		return (
 			<div>
 				<h1>{this.props.title}</h1>
 				<div>
 					{feedbackSurveyItems.map((item, key) => (
-						<div key={key}>
+						<div key={`${item.stack}-${key}`}>
 							<label>
 								<input
 									type="checkbox"
-									checked={this.state[item.stack]}
-									onChange={() =>
-										this.onToggleFeedback(item.stack)
+									name={item.stack}
+									checked={this.props.isChecked(item.stack)}
+									onChange={
+										this.props.onChangeFeedbackCheckbox
 									}
 								/>
 								{item.title}

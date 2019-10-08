@@ -38,8 +38,8 @@ const getChoiceID = key => {
   }
 }
 
-const getSurveyPayload = (feedbackRefs, comment) => {
-  const surveyAnswers = feedbackRefs.map(ref => {
+const getSurveyPayload = (answers, comment) => {
+  const surveyAnswers = answers.map(ref => {
     if (getChoiceID(ref.key) === CANCEL_WORKSPACE.CHOICE_ID.OTHERS) {
       return {
         text: ref.value || 'n/a',
@@ -70,14 +70,15 @@ const getSurveyPayload = (feedbackRefs, comment) => {
     }
     surveyPayload.pages[0].questions.push(commentQuestion)
   }
+
   return surveyPayload
 }
 
 export const submitToSurveyMonkeyDeleteAccount = async ({
-  feedbackRefs,
+  answers,
   comment,
 }) => {
-  const surveyPayload = getSurveyPayload(feedbackRefs, comment)
+  const surveyPayload = getSurveyPayload(answers, comment)
 
   const response = await window.fetch(
     'https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/submitSurvey',
@@ -92,5 +93,5 @@ export const submitToSurveyMonkeyDeleteAccount = async ({
   )
   if (response.status !== 200) {
     throw new Error('Error submitting SurveyMonkey')
-  }
+  } 
 }

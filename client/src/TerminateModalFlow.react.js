@@ -1,4 +1,3 @@
-import _ from "lodash";
 import PropTypes from "prop-types";
 import React from "react";
 
@@ -35,8 +34,11 @@ export default class TerminateModalFlow extends React.Component {
 	state = {
 		activeModal: "transfer",
 		transferData: [],
-		feedbacks: [],
-		comment: "",
+		feedbackData: {
+			answers: [],
+			comment: ""
+		},
+
 		email: "",
 		/* State moved from MockDataProvider */
 		loading: true,
@@ -168,7 +170,10 @@ export default class TerminateModalFlow extends React.Component {
 										...LoadState.error
 									}
 								},
-								() => reject("Promise rejected because fetch error")
+								() =>
+									reject(
+										"Promise rejected because fetch error"
+									)
 							);
 							console.error("Error!", err);
 						});
@@ -263,61 +268,109 @@ export default class TerminateModalFlow extends React.Component {
 	onAssignToUser = (workspace, user) => {
 		this.transferOwnershipCheck(workspace, user)
 			.then(response => this.assignToUser(response))
-			.catch(err => console.log('Promise got rejected or something bad happened:', err));
-		
+			.catch(err =>
+				console.log(
+					"Promise got rejected or something bad happened:",
+					err
+				)
+			);
 	};
 
-	assignToUser = (assignObject) => {
+	assignToUser = assignObject => {
 		const assigns = this.getTransferData().filter(assign => {
 			return assign.workspaceId !== assignObject.workspaceId;
 		});
 
-		this.setState(
-			{
-				transferData: [
-					...assigns,
-					assignObject
-				]
-			}
-		);
+		this.setState({
+			transferData: [...assigns, assignObject]
+		});
 	};
 
-	getRefsValues(refs, refName) {
-		const item = _.get(refs, refName, false);
-		if (!item || _.isEmpty(item.refs)) return {};
+	isChecked = itemStack => {
+		return this.state.feedbackData.answers.some(el => el.key === itemStack);
+	};
 
-		const keys = Object.keys(item.refs);
-		const collection = [];
-		for (const key of keys) {
-			const value = item.refs[key].value;
-			collection.push({ key, value });
-		}
-		return collection;
-	}
+	onChangeFeedbackCheckbox = event => {
+		const target = event.target;
+		// const value =
+		// 	target.type === "checkbox" ? target.checked : target.value;
+		const name = target.name;
+
+		this.setState(state => {
+			if (this.isChecked(name)) {
+				//remove item
+				return {
+					feedbackData: {
+						...state.feedbackData,
+						answers: state.feedbackData.answers.filter(
+							item => item.key !== name
+						)
+					}
+				};
+			}
+			return {
+				feedbackData: {
+					...state.feedbackData,
+					answers: [
+						...state.feedbackData.answers,
+						{
+							key: name,
+							value: ""
+						}
+					]
+				}
+			};
+		});
+	};
+
+	onChangeFeedbackText = event => {
+		const target = event.target;
+		const value = target.value;
+		const name = target.name;
+
+		this.setState(state => {
+			return {
+				feedbackData: {
+					...state.feedbackData,
+					answers: [
+						...state.feedbackData.answers.filter(
+							item => item.key !== name
+						),
+						{
+							key: name,
+							value: value
+						}
+					]
+				}
+			};
+		});
+	};
+
+	onChangeComment = e => {
+		this.setState({
+			feedbackData: {
+				...this.state.feedbackData,
+				comment: e.target.value
+			}
+		});
+	};
 
 	submitSurvey = () => {
-		const feedbackRefs = this.getRefsValues(this.refs, "feedbackForm");
-		const surveyPayload = {
-			feedbackRefs,
-			comment: ""
-		};
-		submitToSurveyMonkeyDeleteAccount(surveyPayload);
+		submitToSurveyMonkeyDeleteAccount(this.state.feedbackData);
 	};
 
 	onSetNextPage = () => {
 		if (this.state.activeModal === "transfer") {
 			this.setState({ activeModal: "feedback" });
 		} else if (this.state.activeModal === "feedback") {
-			const feedbackRefs = this.getRefsValues(this.refs, "feedbackForm");
+
+			this.submitSurvey(); // TODO: Actually, this one shouldn't fire until last step? Do we need to show a confirmation or is it supposed to happen in the bg?
+			
 			// TODO: First submit the survey, if no errors, then proceed. Currently, we will be swallowing errors
 			this.setState({
 				activeModal: "confirm",
-				feedbacks: feedbackRefs.map(ref => ({
-					reason: ref.key,
-					comment: ref.value
-				}))
+
 			});
-			this.submitSurvey(); // TODO: Actually, this one shouldn't fire until last step!
 		}
 	};
 
@@ -328,10 +381,6 @@ export default class TerminateModalFlow extends React.Component {
 		if (this.state.activeModal === "confirm") {
 			this.setState({ activeModal: "feedback" });
 		}
-	};
-
-	onChangeComment = e => {
-		this.setState({ comment: e.target.value });
 	};
 
 	onDeleteAccount = async () => {
@@ -398,13 +447,16 @@ export default class TerminateModalFlow extends React.Component {
 			case "feedback":
 				return (
 					<FeedbackSurveyModal
-						ref="feedbackForm"
 						title="Why would you leave us?"
+						feedbackData={this.state.feedbackData}
 						onSubmit={this.onSetNextPage}
 						onBackButton={this.onGoToPreviousStep}
 						showCommentForm
 						comment={this.state.comment}
 						onChangeComment={this.onChangeComment}
+						onChangeFeedbackText={this.onChangeFeedbackText}
+						onChangeFeedbackCheckbox={this.onChangeFeedbackCheckbox}
+						isChecked={this.isChecked}
 					/>
 				);
 			case "confirm":
