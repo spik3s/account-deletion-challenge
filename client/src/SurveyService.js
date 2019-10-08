@@ -1,4 +1,3 @@
-import _ from 'lodash'
 
 const CANCEL_WORKSPACE = {
   PAGE_ID: '48414504',
@@ -40,7 +39,7 @@ const getChoiceID = key => {
 }
 
 const getSurveyPayload = (feedbackRefs, comment) => {
-  const surveyAnswers = _.map(feedbackRefs, ref => {
+  const surveyAnswers = feedbackRefs.map(ref => {
     if (getChoiceID(ref.key) === CANCEL_WORKSPACE.CHOICE_ID.OTHERS) {
       return {
         text: ref.value || 'n/a',
