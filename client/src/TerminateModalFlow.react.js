@@ -231,21 +231,17 @@ export default class TerminateModalFlow extends React.Component {
 			status
 		} = this.state.transferOwnershipStatus;
 		const transferData = this.state.transferData;
-		const updateData = _.reduce(
-			transferData,
-			(result, assign) => {
-				if (
-					assign.workspaceId === workspaceId &&
-					assign.toUser._id === toUserId
-				) {
-					result.push(Object.assign({}, assign, { status }));
-				} else {
-					result.push(assign);
-				}
-				return result;
-			},
-			[]
-		);
+		const updateData = transferData.reduce((result, assign) => {
+			if (
+				assign.workspaceId === workspaceId &&
+				assign.toUser._id === toUserId
+			) {
+				result.push(Object.assign({}, assign, { status }));
+			} else {
+				result.push(assign);
+			}
+			return result;
+		}, []);
 		return updateData;
 	};
 
@@ -255,9 +251,8 @@ export default class TerminateModalFlow extends React.Component {
 	};
 
 	assignToUser = (workspace, user) => {
-		const assigns = _.reject(
-			this.getTransferData(),
-			assign => assign.workspaceId === workspace.spaceId
+		const assigns = this.getTransferData().filter(
+			assign => assign.workspaceId !== workspace.spaceId
 		);
 		this.setState({
 			transferData: [
@@ -301,7 +296,7 @@ export default class TerminateModalFlow extends React.Component {
 			// TODO: First submit the survey, if no errors, then proceed. Currently, we will be swallowing errors
 			this.setState({
 				activeModal: "confirm",
-				feedbacks: _.map(feedbackRefs, ref => ({
+				feedbacks: feedbackRefs.map(ref => ({
 					reason: ref.key,
 					comment: ref.value
 				}))
@@ -326,7 +321,7 @@ export default class TerminateModalFlow extends React.Component {
 	onDeleteAccount = async () => {
 		if (this.props.user.email === this.state.email) {
 			const payload = {
-				transferTargets: _.map(this.getTransferData(), assign => ({
+				transferTargets: this.getTransferData().map(assign => ({
 					userId: assign.toUser._id,
 					spaceId: assign.workspaceId
 				})),
