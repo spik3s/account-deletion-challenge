@@ -306,7 +306,7 @@ export default class TerminateModalFlow extends React.Component {
 					comment: ref.value
 				}))
 			});
-			this.submitSurvey();
+			this.submitSurvey(); // TODO: Actually, this one shouldn't fire until last step!
 		}
 	};
 
