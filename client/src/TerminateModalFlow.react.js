@@ -43,8 +43,9 @@ export default class TerminateModalFlow extends React.Component {
 		requiredTransferWorkspaces: [],
 		deleteWorkspaces: [],
 		transferOwnershipStatus: {
-			workspaceId: null,
-			toUserId: null,
+			workspaceId: "",
+			fromUserId: "",
+			toUserId: "",
 			...LoadState.pending
 		},
 		terminateAccountStatus: {}
@@ -101,65 +102,79 @@ export default class TerminateModalFlow extends React.Component {
 	};
 
 	transferOwnershipCheck = (workspace, user) => {
-		this.setState(
-			{
-				transferOwnershipStatus: {
-					workspaceId: workspace.spaceId,
-					toUserId: this.props.user._id,
-					...LoadState.fetching
-				}
-			},
-			() => {
-				window
-					.fetch(
-						"https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/checkOwnership",
-						{
-							method: "POST",
-							mode: "cors",
-							signal: this.fetchAbortController.signal,
-							headers: {
-								"Content-Type": "application/json"
-							},
-							body: JSON.stringify({
-								workspaceId: workspace.spaceId,
-								fromUserId: this.props.user._id,
-								toUserId: user._id
-							})
-						}
-					)
-					.then(this.handleFetchErrors)
-					// .then(response => response.text())
-					.then(response => {
-						// TODO: Better error handling here. The original idea might have been better.
-						if (response.status === 200) {
-							this.setState({
-								transferOwnershipStatus: {
+		return new Promise((resolve, reject) => {
+			this.setState(
+				{
+					transferOwnershipStatus: {
+						workspaceId: workspace.spaceId,
+						fromUserId: this.props.user._id,
+						toUserId: user._id,
+						...LoadState.fetching
+					}
+				},
+				() => {
+					window
+						.fetch(
+							"https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/checkOwnership",
+							{
+								method: "POST",
+								mode: "cors",
+								signal: this.fetchAbortController.signal,
+								headers: {
+									"Content-Type": "application/json"
+								},
+								body: JSON.stringify({
 									workspaceId: workspace.spaceId,
-									toUserId: user._id,
-									...LoadState.completed
-								}
-							});
-						}
-					})
-					.catch(err => {
-						if (err.name === "AbortError") {
-							console.info(
-								"Check Ownership Fetch request was aborted."
-							);
-						}
-
-						// TODO: What about aborting, won't this cause issues?
-						this.setState({
-							transferOwnershipStatus: {
-								workspaceId: workspace.spaceId,
-								toUserId: user._id,
-								...LoadState.error
+									fromUserId: this.props.user._id,
+									toUserId: user._id
+								})
 							}
+						)
+						.then(this.handleFetchErrors)
+						// .then(response => response.text())
+						.then(response => {
+							// TODO: Better error handling here. The original idea might have been better.
+							if (response.status === 200) {
+								this.setState(
+									{
+										transferOwnershipStatus: {
+											workspaceId: workspace.spaceId,
+											fromUserId: this.props.user._id,
+											toUserId: user._id,
+											...LoadState.completed
+										}
+									},
+									() =>
+										resolve(
+											this.state.transferOwnershipStatus
+										)
+								);
+							}
+						})
+						.catch(err => {
+							if (err.name === "AbortError") {
+								console.info(
+									"Check Ownership Fetch request was aborted."
+								);
+							}
+
+							// TODO: What about aborting, won't this cause issues?
+							this.setState(
+								{
+									transferOwnershipStatus: {
+										workspaceId: workspace.spaceId,
+										fromUserId: this.props.user._id,
+										toUserId: user._id,
+										...LoadState.error
+									}
+								},
+								() => reject("Promise rejected because fetch error")
+							);
+							console.error("Error!", err);
 						});
-						console.error("Error!", err);
-					});
-			}
-		);
+				}
+			);
+		});
 	};
 
 	terminateAccount = payload => {
@@ -233,7 +248,7 @@ export default class TerminateModalFlow extends React.Component {
 		const updateData = transferData.reduce((result, assign) => {
 			if (
 				assign.workspaceId === workspaceId &&
-				assign.toUser._id === toUserId
+				assign.toUserId === toUserId
 			) {
 				result.push(Object.assign({}, assign, { status }));
 			} else {
@@ -241,28 +256,30 @@ export default class TerminateModalFlow extends React.Component {
 			}
 			return result;
 		}, []);
+
 		return updateData;
 	};
 
 	onAssignToUser = (workspace, user) => {
-		this.transferOwnershipCheck(workspace, user);
-		this.assignToUser(workspace, user);
+		this.transferOwnershipCheck(workspace, user)
+			.then(response => this.assignToUser(response))
+			.catch(err => console.log('Promise got rejected or something bad happened:', err));
+		
 	};
 
-	assignToUser = (workspace, user) => {
-		const assigns = this.getTransferData().filter(
-			assign => assign.workspaceId !== workspace.spaceId
-		);
-		this.setState({
-			transferData: [
-				...assigns,
-				{
-					workspaceId: workspace.spaceId,
-					toUser: user,
-					...LoadState.pending
-				}
-			]
+	assignToUser = (assignObject) => {
+		const assigns = this.getTransferData().filter(assign => {
+			return assign.workspaceId !== assignObject.workspaceId;
 		});
+
+		this.setState(
+			{
+				transferData: [
+					...assigns,
+					assignObject
+				]
+			}
+		);
 	};
 
 	getRefsValues(refs, refName) {

@@ -19,7 +19,7 @@ export default class AssignOwnership extends React.Component {
     return _.chain(transferData)
       .reject(LoadState.isError || LoadState.isLoading)
       .find(assign => assign.workspaceId === workspace.spaceId)
-      .get('toUser._id', '')
+      .get('toUserId', '')
       .value()
   }
 
