@@ -1,117 +1,127 @@
-import _ from 'lodash'
-import PropTypes from 'prop-types'
-import React from 'react'
+import _ from "lodash";
+import PropTypes from "prop-types";
+import React from "react";
 
-import { feedbackSurveyItems } from './FeedbackSurveyItems'
+import { feedbackSurveyItems } from "./FeedbackSurveyItems";
 
 class FeedbackSurveyModal extends React.PureComponent {
-  static propTypes = {
-    onSubmit: PropTypes.func,
-    onBackButton: PropTypes.func,
-    title: PropTypes.node,
-    showCommentForm: PropTypes.bool,
-    comment: PropTypes.string,
-    onChangeComment: PropTypes.func,
-  }
+	static propTypes = {
+		onSubmit: PropTypes.func,
+		onBackButton: PropTypes.func,
+		title: PropTypes.node,
+		showCommentForm: PropTypes.bool,
+		comment: PropTypes.string,
+		onChangeComment: PropTypes.func
+	};
 
-  constructor(props) {
-    super(props)
-    this.state = this.setInitialState()
-  }
+	constructor(props) {
+		super(props);
+		this.state = this.setInitialState();
+	}
 
-  state = {
-    isFocusCommentBox: false,
-  }
+	state = {
+		isFocusCommentBox: false
+	};
 
-  setInitialState = () => {
-    return _.chain(feedbackSurveyItems)
-      .map(item => [item.stack, false])
-      .fromPairs()
-      .value()
-  }
+	setInitialState = () => {
+		return feedbackSurveyItems
+			.map(item => [item.stack, false])
+			.reduce((acc, val) => ((acc[val[0]] = val[1]), acc), {});
+	};
 
-  hasAllUnchecked = () => {
-    const FeedbackSurveyItems = this.state
-    return (
-      _.every(FeedbackSurveyItems, val => val === false) &&
-      !this.state.isFocusCommentBox
-    )
-  }
+	hasAllUnchecked = () => {
+		const FeedbackSurveyItems = this.state;
+		return (
+			Object.keys(FeedbackSurveyItems).every(
+				val => FeedbackSurveyItems[val] === false
+			) && !this.state.isFocusCommentBox
+		);
+	};
 
-  onToggleFeedback(stack) {
-    this.setState({ [stack]: !this.state[stack] })
-  }
+	onToggleFeedback(stack) {
+		this.setState({ [stack]: !this.state[stack] });
+	}
 
-  onFocusCommentBox = () => {
-    this.setState({ isFocusCommentBox: !this.state.isFocusCommentBox })
-  }
+	onFocusCommentBox = () => {
+		this.setState({ isFocusCommentBox: !this.state.isFocusCommentBox });
+	};
 
-  renderInputForm({ stack, canComment, placeHolder }) {
-    const prefill = placeHolder && canComment ? placeHolder : ''
-    return !this.state[stack] ? null : (
-      <div style={!canComment ? { display: 'none' } : null}>
-        <input type="text" name={stack} ref={stack} placeholder={prefill} />
-      </div>
-    )
-  }
+	renderInputForm({ stack, canComment, placeHolder }) {
+		const prefill = placeHolder && canComment ? placeHolder : "";
+		return !this.state[stack] ? null : (
+			<div style={!canComment ? { display: "none" } : null}>
+				<input
+					type="text"
+					name={stack}
+					ref={stack}
+					placeholder={prefill}
+				/>
+			</div>
+		);
+	}
 
-  renderButtons() {
-    return (
-      <div>
-        <button onClick={this.props.onBackButton}>Back</button>
-        <button onClick={this.props.onSubmit} disabled={this.hasAllUnchecked()}>
-          Next
-        </button>
-      </div>
-    )
-  }
+	renderButtons() {
+		return (
+			<div>
+				<button onClick={this.props.onBackButton}>Back</button>
+				<button
+					onClick={this.props.onSubmit}
+					disabled={this.hasAllUnchecked()}
+				>
+					Next
+				</button>
+			</div>
+		);
+	}
 
-  renderCommentForm() {
-    if (!this.props.showCommentForm) return
-    return (
-      <div style={{ marginTop: '2rem' }}>
-        Comments:
-        <div>
-          <textarea
-            type="text"
-            name="comment"
-            style={
-              this.state.isFocusCommentBox
-                ? { border: '1px solid blue' }
-                : { border: '1px solid black' }
-            }
-            onChange={this.props.onChangeComment}
-            value={this.props.comment}
-          />
-        </div>
-      </div>
-    )
-  }
+	renderCommentForm() {
+		if (!this.props.showCommentForm) return;
+		return (
+			<div style={{ marginTop: "2rem" }}>
+				Comments:
+				<div>
+					<textarea
+						type="text"
+						name="comment"
+						style={
+							this.state.isFocusCommentBox
+								? { border: "1px solid blue" }
+								: { border: "1px solid black" }
+						}
+						onChange={this.props.onChangeComment}
+						value={this.props.comment}
+					/>
+				</div>
+			</div>
+		);
+	}
 
-  render() {
-    return (
-      <div>
-        <h1>{this.props.title}</h1>
-        <div>
-          {_.map(feedbackSurveyItems, (item, key) => (
-            <div key={key}>
-              <label>
-                <input
-                  type="checkbox"
-                  checked={this.state[item.stack]}
-                  onChange={() => this.onToggleFeedback(item.stack)}
-                />
-                {item.title}
-              </label>
-              {this.renderInputForm(item)}
-            </div>
-          ))}
-        </div>
-        {this.renderCommentForm()}
-        {this.renderButtons()}
-      </div>
-    )
-  }
+	render() {
+		return (
+			<div>
+				<h1>{this.props.title}</h1>
+				<div>
+					{feedbackSurveyItems.map((item, key) => (
+						<div key={key}>
+							<label>
+								<input
+									type="checkbox"
+									checked={this.state[item.stack]}
+									onChange={() =>
+										this.onToggleFeedback(item.stack)
+									}
+								/>
+								{item.title}
+							</label>
+							{this.renderInputForm(item)}
+						</div>
+					))}
+				</div>
+				{this.renderCommentForm()}
+				{this.renderButtons()}
+			</div>
+		);
+	}
 }
 
-export default FeedbackSurveyModal
+export default FeedbackSurveyModal;
