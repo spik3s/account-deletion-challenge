@@ -2,12 +2,13 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import SelectNewOwner from "../SelectNewOwner";
+import * as LOAD_STATE from "../../constants/loadStatus";
 
 class TransferOwnerView extends React.PureComponent {
 	static propTypes = {
 		requiredTransferWorkspaces: PropTypes.array.isRequired,
-		assignToUser: PropTypes.func,
-		transferOwnershipCheck: PropTypes.func,
+		transferData: PropTypes.array,
+		onOwnerSelect: PropTypes.func,
 		onClickNext: PropTypes.func,
 		loading: PropTypes.bool,
 		user: PropTypes.exact({
@@ -15,18 +16,6 @@ class TransferOwnerView extends React.PureComponent {
 			name: PropTypes.string.isRequired,
 			email: PropTypes.string.isRequired
 		}).isRequired
-	};
-
-	onAssignToUser = (workspace, user) => {
-		this.props
-			.transferOwnershipCheck(workspace, user)
-			.then(response => this.props.assignToUser(response))
-			.catch(err =>
-				console.log(
-					"Promise got rejected or something bad happened:",
-					err
-				)
-			);
 	};
 
 	renderLoading = () => <div>Loading...</div>;
@@ -38,20 +27,23 @@ class TransferOwnerView extends React.PureComponent {
 			requiredTransferWorkspaces,
 			user,
 			transferData,
-			deleteWorkspaces
+			deleteWorkspaces,
+			onOwnerSelect
 		} = this.props;
 
 		const totalWorkspaceRequiredTransfer =
 			requiredTransferWorkspaces.length;
 
 		const totalAssigned = transferData.length;
-		const hasErrors = transferData.some(el => el.status === "error");
+		const isIncomplete = transferData.some(
+			el => el.status !== LOAD_STATE.COMPLETED
+		);
 
 		const totalWorkspaceDelete = deleteWorkspaces.length;
 
 		const disabledNextPage =
 			totalAssigned < totalWorkspaceRequiredTransfer ||
-			hasErrors ||
+			isIncomplete ||
 			loading;
 
 		return (
@@ -73,9 +65,10 @@ class TransferOwnerView extends React.PureComponent {
 							<SelectNewOwner
 								user={user}
 								transferData={transferData}
-								onAssignToUser={this.onAssignToUser}
+								onOwnerSelect={onOwnerSelect}
 							/>
 						</WorkspaceGroupRows>
+
 						<WorkspaceGroupRows
 							workspaces={deleteWorkspaces}
 							groupTitle="The following workspaces will be deleted:"
@@ -114,7 +107,7 @@ export const WorkspaceGroupRows = ({
 			</div>
 		</div>
 	);
-	
+
 WorkspaceGroupRows.propTypes = {
 	groupTitle: PropTypes.string,
 	workspaces: PropTypes.array.isRequired,

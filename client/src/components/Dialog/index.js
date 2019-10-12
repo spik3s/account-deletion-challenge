@@ -27,12 +27,6 @@ export default class Dialog extends React.Component {
 		loading: true,
 		requiredTransferWorkspaces: [],
 		deleteWorkspaces: [],
-		transferOwnershipStatus: {
-			workspaceId: "",
-			fromUserId: "",
-			toUserId: "",
-			...LoadState.pending
-		},
 		terminateAccountStatus: {}
 	};
 
@@ -55,6 +49,7 @@ export default class Dialog extends React.Component {
 		this.fetchAbortController.abort();
 	}
 
+	// METHODS FOR WORKSPACES
 	fetchRelatedWorkspaces = () => {
 		const { user } = this.props;
 
@@ -85,81 +80,86 @@ export default class Dialog extends React.Component {
 			});
 	};
 
+	transferStatusUpdate = (currentState, transferStatus) => {
+		const { transferData } = currentState;
+		if (
+			!transferData.length ||
+			!transferData.some(
+				existingItem =>
+					existingItem.workspaceId === transferStatus.workspaceId
+			)
+		) {
+			return [...transferData, transferStatus];
+		}
+
+		return transferData.reduce((result, existingItem) => {
+			if (existingItem.workspaceId === transferStatus.workspaceId) {
+				result.push(transferStatus);
+				return result;
+			}
+			result.push(existingItem);
+
+			return result;
+		}, []);
+	};
+
 	transferOwnershipCheck = (workspace, toUser) => {
 		const { user } = this.props;
-		return new Promise((resolve, reject) => {
-			this.setState(
-				{
-					transferOwnershipStatus: {
-						workspaceId: workspace.spaceId,
-						fromUserId: user._id,
-						toUserId: toUser._id,
-						...LoadState.fetching
-					}
-				},
-				() => {
-					window
-						.fetch(
-							"https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/checkOwnership",
-							{
-								method: "POST",
-								mode: "cors",
-								signal: this.fetchAbortController.signal,
-								headers: {
-									"Content-Type": "application/json"
-								},
-								body: JSON.stringify({
-									workspaceId: workspace.spaceId,
-									fromUserId: user._id,
-									toUserId: toUser._id
+		const ownershipToCheck = {
+			workspaceId: workspace.spaceId,
+			fromUserId: user._id,
+			toUserId: toUser._id
+		};
+		this.setState(
+			state => ({
+				transferData: this.transferStatusUpdate(state, {
+					...ownershipToCheck,
+					...LoadState.fetching
+				})
+			}),
+			() => {
+				window
+					.fetch(
+						"https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/checkOwnership",
+						{
+							method: "POST",
+							mode: "cors",
+							signal: this.fetchAbortController.signal,
+							headers: {
+								"Content-Type": "application/json"
+							},
+							body: JSON.stringify(ownershipToCheck)
+						}
+					)
+					.then(this.handleFetchErrors)
+					.then(response => {
+						if (response.status === 200) {
+							this.setState(state => ({
+								transferData: this.transferStatusUpdate(state, {
+									...ownershipToCheck,
+									...LoadState.completed
 								})
-							}
-						)
-						.then(this.handleFetchErrors)
-						.then(response => {
-							if (response.status === 200) {
-								this.setState(
-									{
-										transferOwnershipStatus: {
-											workspaceId: workspace.spaceId,
-											fromUserId: user._id,
-											toUserId: toUser._id,
-											...LoadState.completed
-										}
-									},
-									() =>
-										resolve(
-											this.state.transferOwnershipStatus
-										)
-								);
-							}
-						})
-						.catch(err => {
-							if (err.name === "AbortError") {
-								console.info(
-									"Check Ownership Fetch request was aborted."
-								);
-							}
-
-							this.setState(
-								{
-									transferOwnershipStatus: {
-										workspaceId: workspace.spaceId,
-										fromUserId: user._id,
-										toUserId: toUser._id,
-										...LoadState.error
-									}
-								},
-								() =>
-									reject(
-										"Promise rejected because fetch error"
-									)
+							}));
+						}
+					})
+					.catch(err => {
+						if (err.name === "AbortError") {
+							console.info(
+								"Check Ownership Fetch request was aborted."
 							);
-							console.error("Error!", err);
-						});
-				}
-			);
-		});
+						}
+
+						this.setState(state => ({
+							transferData: this.transferStatusUpdate(state, {
+								...LoadState.initWithError(
+									"Error while checking for the ownership suitability"
+								),
+								...ownershipToCheck
+							})
+						}));
+					});
+			}
+		);
 	};
 
 	terminateAccount = payload => {
@@ -224,18 +224,6 @@ export default class Dialog extends React.Component {
 
 	redirectToHomepage = () => {
 		window.location = "http://www.example.com/";
-	};
-
-	assignToUser = assignObject => {
-		const { transferData } = this.state;
-
-		const assigns = transferData.filter(assign => {
-			return assign.workspaceId !== assignObject.workspaceId;
-		});
-
-		this.setState({
-			transferData: [...assigns, assignObject]
-		});
 	};
 
 	isChecked = itemStack => {
@@ -369,8 +357,7 @@ export default class Dialog extends React.Component {
 						loading={loading}
 						requiredTransferWorkspaces={requiredTransferWorkspaces}
 						deleteWorkspaces={deleteWorkspaces}
-						assignToUser={this.assignToUser}
-						transferOwnershipCheck={this.transferOwnershipCheck}
+						onOwnerSelect={this.transferOwnershipCheck}
 					/>
 				);
 			case VIEWS.FEEDBACK:

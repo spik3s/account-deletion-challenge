@@ -2,18 +2,21 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import * as LoadState from "../../LoadState";
+import * as LOAD_STATE from "../../constants/loadStatus";
 
 export default class SelectNewOwner extends React.Component {
 	static propTypes = {
-		user: PropTypes.object,
+		user: PropTypes.exact({
+			_id: PropTypes.string.isRequired, // not sure about the naming convention here. Leaving unchanged since I assume that's the format dictated by the rest of the app
+			name: PropTypes.string.isRequired,
+			email: PropTypes.string.isRequired
+		}).isRequired,
 		transferData: PropTypes.array,
-		onAssignToUser: PropTypes.func
+		onOwnerSelect: PropTypes.func
 	};
 
 	getAddedMember() {
 		const { workspace, transferData } = this.props;
-
-		// TODO: We need to display some errors if LoadState.isError
 
 		const filterMembers = transferData
 			.filter(el => !LoadState.isError(el) && !LoadState.isLoading(el))
@@ -22,21 +25,62 @@ export default class SelectNewOwner extends React.Component {
 		return filterMembers ? filterMembers.toUserId : "";
 	}
 
-	onAssignToUser = e => {
-		const { onAssignToUser, workspace } = this.props;
+	handleOwnerSelect = e => {
+		const { onOwnerSelect, workspace } = this.props;
 		const user = workspace.transferableMembers.find(
 			user => user._id === e.target.value
 		);
-		onAssignToUser(workspace, user);
+		onOwnerSelect(workspace, user);
+	};
+
+	renderStatus = (currentStatus) => {
+		switch (currentStatus.status) {
+			case LOAD_STATE.FETCHING:
+				return (
+					<span
+						style={{
+							marginLeft: "1rem"
+						}}
+					>
+						checking...
+					</span>
+				);
+			case LOAD_STATE.COMPLETED:
+				return (
+					<span
+						style={{
+							marginLeft: "1rem"
+						}}
+					>
+						OK!
+					</span>
+				);
+			case LOAD_STATE.ERROR:
+				return (
+					<span
+						style={{
+							marginLeft: "1rem",
+							color: "#ff4500"
+						}}
+					>
+						{currentStatus.error}
+					</span>
+				);
+			default:
+				return null;
+		}
 	};
 
 	render() {
-    const {workspace} = this.props
+		const { workspace, transferData } = this.props;
+		const currentStatus = transferData.find(
+			status => status.workspaceId === workspace.spaceId
+		);
 		return (
-			<div style={{ textDecoration: "underline", cursor: "pointer" }}>
+			<div style={{ cursor: "pointer" }}>
 				<select
 					value={this.getAddedMember()}
-					onChange={this.onAssignToUser}
+					onChange={this.handleOwnerSelect}
 					style={{ minWidth: "3rem" }}
 				>
 					<option value="" disabled>
@@ -48,6 +92,8 @@ export default class SelectNewOwner extends React.Component {
 						</option>
 					))}
 				</select>
+
+				{currentStatus && this.renderStatus(currentStatus)}
 			</div>
 		);
 	}
