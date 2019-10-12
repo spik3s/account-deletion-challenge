@@ -11,13 +11,13 @@ export const completed = { status: STATUS_COMPLETED }
 const outdated = { status: STATUS_OUTDATED }
 const refreshing = { status: STATUS_REFRESHING }
 export const error = { status: STATUS_ERROR }
-const initWithError = error => ({ status: STATUS_ERROR, error })
+export const initWithError = error => ({ status: STATUS_ERROR, error })
 
 export const isError = state => state.status === STATUS_ERROR
 export const shouldLoad = state =>
   state.status === STATUS_PENDING || state.status === STATUS_OUTDATED
 export const isLoading = state =>
-  state.status === STATUS_PENDING ||
+  // state.status === STATUS_PENDING ||
   state.status === STATUS_FETCHING ||
   state.status === STATUS_REFRESHING
 export const isLoadingFirstTime = state => state.status === STATUS_FETCHING

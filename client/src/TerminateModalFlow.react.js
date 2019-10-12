@@ -184,51 +184,56 @@ export default class TerminateModalFlow extends React.Component {
 
 	terminateAccount = payload => {
 		// Note that there is 30% chance of getting error from the server
-		window
-			.fetch(
-				"https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/terminateAccount",
-				{
-					method: "POST",
-					mode: "cors",
-					signal: this.fetchAbortController.signal,
-					headers: {
-						"Content-Type": "application/json"
-					},
-					body: JSON.stringify(payload)
-				}
-			)
-			.then(this.handleFetchErrors)
-			.then(response => {
-				if (response.status === 200) {
-					this.setState({
-						terminateAccountStatus: LoadState.handleLoaded(
-							this.state.terminateAccountStatus
-						)
+		this.setState(
+			{
+				terminateAccountStatus: LoadState.fetching
+			},
+			() => {
+				window
+					.fetch(
+						"https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/terminateAccount",
+						{
+							method: "POST",
+							mode: "cors",
+							signal: this.fetchAbortController.signal,
+							headers: {
+								"Content-Type": "application/json"
+							},
+							body: JSON.stringify(payload)
+						}
+					)
+					.then(this.handleFetchErrors)
+					.then(response => {
+						if (response.status === 200) {
+							this.setState(
+								{
+									terminateAccountStatus: LoadState.handleLoaded(
+										this.state.terminateAccountStatus
+									)
+								},
+								() => {
+									this.redirectToHomepage();
+								}
+							);
+						}
+					})
+					.catch(err => {
+						if (err.name === "AbortError") {
+							this.setState({
+								terminateAccountStatus: LoadState.initWithError(
+									"Terminate Account Fetch request was aborted."
+								)
+							});
+						}
+
+						this.setState({
+							terminateAccountStatus: LoadState.initWithError(
+								"Error deleting account"
+							)
+						});
 					});
-				}
-			})
-			.catch(err => {
-				if (err.name === "AbortError") {
-					console.info(
-						"Terminate Account Fetch request was aborted."
-					);
-				}
-				console.error("Error!", err.message);
-
-				this.setState({
-					terminateAccountStatus: LoadState.handleLoadFailedWithError(
-						"Error deleting account"
-					)(this.state.terminateAccountStatus)
-				});
-			});
-	};
-
-	terminateAccountError = error => {
-		this.setState({
-			terminateAccountStatus: LoadState.handleLoadFailedWithError(error)(
-				this.state.terminateAccountStatus
-			)
-		});
+			}
+		);
 	};
 
 	resetTerminateAccountStatus = () => {
@@ -249,7 +254,8 @@ export default class TerminateModalFlow extends React.Component {
 			toUserId,
 			status
 		} = this.state.transferOwnershipStatus;
-		const transferData = this.state.transferData;
+		const transferData = this.state.transferData; // this is reference, not value
+
 		const updateData = transferData.reduce((result, assign) => {
 			if (
 				assign.workspaceId === workspaceId &&
@@ -363,13 +369,11 @@ export default class TerminateModalFlow extends React.Component {
 		if (this.state.activeModal === "transfer") {
 			this.setState({ activeModal: "feedback" });
 		} else if (this.state.activeModal === "feedback") {
-
 			this.submitSurvey(); // TODO: Actually, this one shouldn't fire until last step? Do we need to show a confirmation or is it supposed to happen in the bg?
-			
+
 			// TODO: First submit the survey, if no errors, then proceed. Currently, we will be swallowing errors
 			this.setState({
-				activeModal: "confirm",
-
+				activeModal: "confirm"
 			});
 		}
 	};
@@ -384,23 +388,16 @@ export default class TerminateModalFlow extends React.Component {
 	};
 
 	onDeleteAccount = async () => {
-		if (this.props.user.email === this.state.email) {
-			const payload = {
-				transferTargets: this.getTransferData().map(assign => ({
-					userId: assign.toUser._id,
-					spaceId: assign.workspaceId
-				})),
-				reason: this.state.feedbacks
-			};
-			this.terminateAccount(payload);
-		} else {
-			const error = "Invalid email";
-			this.terminateAccountError(error);
-		}
-	};
+		//this.state.transferData should already have everything as we do the check earlier. Double check?
+		const payload = {
+			transferTargets: this.state.transferData.map(assign => ({
+				userId: assign.toUserId,
+				spaceId: assign.workspaceId
+			}))
+			// reason: this.state.feedbacks // do we need this? it's not specified in the server files and we already sent it off to SM
+		};
 
-	onTypeEmail = e => {
-		this.setState({ email: e.target.value });
+		this.terminateAccount(payload);
 	};
 
 	renderTransferModal() {
@@ -464,8 +461,7 @@ export default class TerminateModalFlow extends React.Component {
 					<ConfirmEmailModal
 						onClickToDelete={this.onDeleteAccount}
 						onBackButton={this.onGoToPreviousStep}
-						email={this.state.email}
-						onTypeEmail={this.onTypeEmail}
+						email={this.props.user.email}
 						terminateAccountStatus={
 							this.state.terminateAccountStatus
 						}
