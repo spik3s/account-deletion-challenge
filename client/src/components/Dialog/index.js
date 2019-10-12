@@ -2,10 +2,9 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import ConfirmView from "../ConfirmView";
-import TransferOwnerView, { WorkspaceGroupRows } from "../TransferOwnerView";
+import TransferOwnerView from "../TransferOwnerView";
 import FeedbackView from "../FeedbackView";
 import * as LoadState from "../../LoadState";
-import SelectNewOwner from "../SelectNewOwner";
 
 import * as VIEWS from "../../constants/views";
 
@@ -248,16 +247,6 @@ export default class Dialog extends React.Component {
 		return updateData;
 	};
 
-	onAssignToUser = (workspace, user) => {
-		this.transferOwnershipCheck(workspace, user)
-			.then(response => this.assignToUser(response))
-			.catch(err =>
-				console.log(
-					"Promise got rejected or something bad happened:",
-					err
-				)
-			);
-	};
 
 	assignToUser = assignObject => {
 		const assigns = this.getTransferData().filter(assign => {
@@ -377,62 +366,33 @@ export default class Dialog extends React.Component {
 		this.terminateAccount(payload);
 	};
 
-	renderTransferModal() {
-		const { user } = this.props;
+	render() {
 		const {
 			loading,
 			deleteWorkspaces,
-			requiredTransferWorkspaces
-		} = this.state;
-
-		const transferData = this.getTransferData();
-		const totalAssigned = transferData.length;
-		const hasErrors = transferData.some(el => el.status === "error");
-		const totalWorkspaceRequiredTransfer =
-			requiredTransferWorkspaces.length;
-		const totalWorkspaceDelete = deleteWorkspaces.length;
-		const disabledNextPage =
-			totalAssigned < totalWorkspaceRequiredTransfer ||
-			hasErrors ||
-			loading;
-		return (
-			<TransferOwnerView
-				onClickNext={this.setNextView}
-				loading={loading}
-				disabledNextPage={disabledNextPage}
-			>
-				<WorkspaceGroupRows
-					workspaces={requiredTransferWorkspaces}
-					groupTitle="The following workspaces require ownership transfer:"
-					shouldDisplay={totalWorkspaceRequiredTransfer > 0}
-				>
-					<SelectNewOwner
-						user={user}
-						transferData={transferData}
-						onAssignToUser={this.onAssignToUser}
-					/>
-				</WorkspaceGroupRows>
-				<WorkspaceGroupRows
-					workspaces={deleteWorkspaces}
-					groupTitle="The following workspaces will be deleted:"
-					shouldDisplay={totalWorkspaceDelete > 0}
-				/>
-			</TransferOwnerView>
-		);
-	}
-
-	render() {
-		const {
+			requiredTransferWorkspaces,
 			activeModal,
 			feedbackData,
 			comment,
-			terminateAccountStatus
+			terminateAccountStatus,
+			transferData
 		} = this.state;
 		const { user } = this.props;
 
 		switch (activeModal) {
 			case VIEWS.TRANSFER:
-				return this.renderTransferModal();
+				return (
+					<TransferOwnerView
+						transferData={transferData}
+						user={user}
+						onClickNext={this.setNextView}
+						loading={loading}
+						requiredTransferWorkspaces={requiredTransferWorkspaces}
+						deleteWorkspaces={deleteWorkspaces}
+						assignToUser={this.assignToUser}
+						transferOwnershipCheck={this.transferOwnershipCheck}
+					/>
+				);
 			case VIEWS.FEEDBACK:
 				return (
 					<FeedbackView
