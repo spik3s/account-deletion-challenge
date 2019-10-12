@@ -2,6 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import * as LoadState from "../../LoadState";
+import { handleFetchErrors, fetchAbortController } from "../../utils/fetch";
 
 const INITIAL_STATE = {
 	confirmationCheckbox: false,
@@ -20,10 +21,8 @@ class ConfirmView extends React.PureComponent {
 		...INITIAL_STATE
 	};
 
-	fetchAbortController = new AbortController();
-
 	componentWillUnmount() {
-		this.fetchAbortController.abort();
+		fetchAbortController.abort();
 	}
 
 	onClickToDelete = async () => {
@@ -42,6 +41,7 @@ class ConfirmView extends React.PureComponent {
 
 	terminateAccount = payload => {
 		// Note that there is 30% chance of getting error from the server
+
 		this.setState(
 			{
 				terminateAccountStatus: LoadState.fetching
@@ -53,14 +53,14 @@ class ConfirmView extends React.PureComponent {
 						{
 							method: "POST",
 							mode: "cors",
-							signal: this.fetchAbortController.signal,
+							signal: fetchAbortController.signal,
 							headers: {
 								"Content-Type": "application/json"
 							},
 							body: JSON.stringify(payload)
 						}
 					)
-					.then(this.handleFetchErrors)
+					.then(handleFetchErrors)
 					.then(response => {
 						if (response.status === 200) {
 							this.setState(

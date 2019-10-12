@@ -6,6 +6,7 @@ import TransferOwnerView from "../TransferOwnerView";
 import FeedbackView from "../FeedbackView";
 import * as LoadState from "../../LoadState";
 
+import {handleFetchErrors, fetchAbortController} from "../../utils/fetch"
 import * as VIEWS from "../../constants/views";
 
 export default class Dialog extends React.Component {
@@ -29,12 +30,8 @@ export default class Dialog extends React.Component {
 		deleteWorkspaces: []
 	};
 
-	fetchAbortController = new AbortController();
 
-	handleFetchErrors = response => {
-		if (!response.ok) throw Error(response.status);
-		return response;
-	};
+	
 
 	componentDidMount() {
 		if (this.props.user) {
@@ -45,7 +42,7 @@ export default class Dialog extends React.Component {
 	}
 
 	componentWillUnmount() {
-		this.fetchAbortController.abort();
+		fetchAbortController.abort();
 	}
 
 	// METHODS FOR NAVIGATION
@@ -86,10 +83,10 @@ export default class Dialog extends React.Component {
 				{
 					method: "GET",
 					mode: "cors",
-					signal: this.fetchAbortController.signal
+					signal: fetchAbortController.signal
 				}
 			)
-			.then(this.handleFetchErrors)
+			.then(handleFetchErrors)
 			.then(response => response.json())
 			.then(data => {
 				this.setState({
@@ -151,14 +148,14 @@ export default class Dialog extends React.Component {
 						{
 							method: "POST",
 							mode: "cors",
-							signal: this.fetchAbortController.signal,
+							signal: fetchAbortController.signal,
 							headers: {
 								"Content-Type": "application/json"
 							},
 							body: JSON.stringify(ownershipToCheck)
 						}
 					)
-					.then(this.handleFetchErrors)
+					.then(handleFetchErrors)
 					.then(response => {
 						if (response.status === 200) {
 							this.setState(state => ({
