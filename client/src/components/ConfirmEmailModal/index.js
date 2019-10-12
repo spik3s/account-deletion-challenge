@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-import { isLoading } from "./LoadState";
+import { isLoading } from "../../LoadState";
 
 class ConfirmEmailModal extends React.PureComponent {
 	static propTypes = {

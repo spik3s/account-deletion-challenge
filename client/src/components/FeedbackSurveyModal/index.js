@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-import { feedbackAnswers } from "./data/feedbackAnswers";
+import { feedbackAnswers } from "../../data/feedbackAnswers";
 
 class FeedbackSurveyModal extends React.PureComponent {
 	static propTypes = {

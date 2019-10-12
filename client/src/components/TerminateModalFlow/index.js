@@ -1,16 +1,16 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-import ConfirmEmailModal from "./ConfirmEmailModal.react";
+import ConfirmEmailModal from "../ConfirmEmailModal";
 import TransferOwnershipModal, {
 	WorkspaceGroupRows
-} from "./TransferOwnershipModal.react";
-import FeedbackSurveyModal from "./FeedbackSurveyModal.react";
-import { submitToSurveyMonkeyDeleteAccount } from "./SurveyService";
-import * as LoadState from "./LoadState";
-import AssignOwnership from "./AssignOwnership.react";
+} from "../TransferOwnershipModal";
+import FeedbackSurveyModal from "../FeedbackSurveyModal";
+import { submitToSurveyMonkeyDeleteAccount } from "../../SurveyService";
+import * as LoadState from "../../LoadState";
+import AssignOwnership from "../AssignOwnership";
 
-import * as VIEWS from "./constants/views";
+import * as VIEWS from "../../constants/views";
 
 export default class TerminateModalFlow extends React.Component {
 	static propTypes = {

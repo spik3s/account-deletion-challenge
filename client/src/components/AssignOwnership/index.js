@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-import * as LoadState from "./LoadState";
+import * as LoadState from "../../LoadState";
 
 export default class AssignOwnership extends React.Component {
 	static propTypes = {
