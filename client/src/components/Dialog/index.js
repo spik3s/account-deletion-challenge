@@ -226,30 +226,10 @@ export default class Dialog extends React.Component {
 		window.location = "http://www.example.com/";
 	};
 
-	getTransferData = () => {
-		const {
-			transferData,
-			transferOwnershipStatus: { workspaceId, toUserId, status }
-		} = this.state;
-
-		const updateData = transferData.reduce((result, assign) => {
-			if (
-				assign.workspaceId === workspaceId &&
-				assign.toUserId === toUserId
-			) {
-				result.push(Object.assign({}, assign, { status }));
-			} else {
-				result.push(assign);
-			}
-			return result;
-		}, []);
-
-		return updateData;
-	};
-
-
 	assignToUser = assignObject => {
-		const assigns = this.getTransferData().filter(assign => {
+		const { transferData } = this.state;
+
+		const assigns = transferData.filter(assign => {
 			return assign.workspaceId !== assignObject.workspaceId;
 		});
 
