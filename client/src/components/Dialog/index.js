@@ -6,7 +6,7 @@ import TransferOwnerView, {
 	WorkspaceGroupRows
 } from "../TransferOwnerView";
 import FeedbackView from "../FeedbackView";
-import { submitToSurveyMonkeyDeleteAccount } from "../../SurveyService";
+import { submitSurvey } from "../../SurveyService";
 import * as LoadState from "../../LoadState";
 import SelectNewOwner from "../SelectNewOwner";
 
@@ -342,9 +342,6 @@ export default class Dialog extends React.Component {
 		});
 	};
 
-	submitSurvey = () => {
-		submitToSurveyMonkeyDeleteAccount(this.state.feedbackData);
-	};
 
 	onSetNextPage = () => {
 		const { activeModal } = this.state;
@@ -352,7 +349,7 @@ export default class Dialog extends React.Component {
 		if (activeModal === VIEWS.TRANSFER) {
 			this.setState({ activeModal: VIEWS.FEEDBACK });
 		} else if (activeModal === VIEWS.FEEDBACK) {
-			this.submitSurvey(); // TODO: Actually, this one shouldn't fire until last step? Do we need to show a confirmation or is it supposed to happen in the bg?
+			submitSurvey(this.state.feedbackData); // TODO: Actually, this one shouldn't fire until last step? Do we need to show a confirmation or is it supposed to happen in the bg?
 
 			// TODO: First submit the survey, if no errors, then proceed. Currently, we will be swallowing errors
 			this.setState({

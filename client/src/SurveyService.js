@@ -74,7 +74,7 @@ const getSurveyPayload = (answers, comment) => {
   return surveyPayload
 }
 
-export const submitToSurveyMonkeyDeleteAccount = async ({
+export const submitSurvey = async ({
   answers,
   comment,
 }) => {
