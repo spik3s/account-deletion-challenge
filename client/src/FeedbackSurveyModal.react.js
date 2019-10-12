@@ -23,7 +23,7 @@ class FeedbackSurveyModal extends React.PureComponent {
 		return !(this.props.feedbackData.answers.length > 0);
 	};
 
-	renderInputForm({ stack, canComment, placeHolder }) {
+	renderInputForm = ({ stack, canComment, placeHolder }) => {
 		const { isChecked, onChangeFeedbackText } = this.props;
 		const prefill = placeHolder && canComment ? placeHolder : "";
 
@@ -37,7 +37,7 @@ class FeedbackSurveyModal extends React.PureComponent {
 				/>
 			</div>
 		);
-	}
+	};
 
 	renderCommentForm() {
 		const { showCommentForm, onChangeComment, feedbackData } = this.props;
