@@ -10,7 +10,7 @@ import { submitToSurveyMonkeyDeleteAccount } from "./SurveyService";
 import * as LoadState from "./LoadState";
 import AssignOwnership from "./AssignOwnership.react";
 
-import * as VIEWS from "./constants/views"
+import * as VIEWS from "./constants/views";
 
 export default class TerminateModalFlow extends React.Component {
 	static propTypes = {
@@ -133,7 +133,7 @@ export default class TerminateModalFlow extends React.Component {
 											...LoadState.completed
 										}
 									},
-									() => 
+									() =>
 										resolve(
 											this.state.transferOwnershipStatus
 										)
@@ -333,12 +333,15 @@ export default class TerminateModalFlow extends React.Component {
 	};
 
 	onChangeComment = e => {
-		this.setState(state => ({
-			feedbackData: {
-				...state.feedbackData,
-				comment: e.target.value
-			}
-		}));
+		const { value } = e.target;
+		this.setState(state => {
+			return {
+				feedbackData: {
+					...state.feedbackData,
+					comment: value
+				}
+			};
+		});
 	};
 
 	submitSurvey = () => {
