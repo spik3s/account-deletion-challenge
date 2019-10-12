@@ -74,17 +74,12 @@ class ConfirmView extends React.PureComponent {
 						}
 					})
 					.catch(err => {
-						if (err.name === "AbortError") {
-							this.setState({
-								terminateAccountStatus: LoadState.initWithError(
-									"Terminate Account Fetch request was aborted."
-								)
-							});
-						}
-
 						this.setState({
+							...INITIAL_STATE,
 							terminateAccountStatus: LoadState.initWithError(
-								"Error deleting account"
+								err.name === "AbortError"
+									? "Terminate Account Fetch request was aborted."
+									: "Error deleting account"
 							)
 						});
 					});
@@ -138,7 +133,7 @@ class ConfirmView extends React.PureComponent {
 
 	render() {
 		const { onClickBack } = this.props;
-		const { confirmationCheckbox } = this.state;
+		const { confirmationCheckbox, terminateAccountStatus } = this.state;
 		return (
 			<div>
 				<h1>Delete account</h1>
@@ -155,6 +150,18 @@ class ConfirmView extends React.PureComponent {
 						I understand the consequences.
 					</label>
 				</div>
+				{terminateAccountStatus.error && (
+					<div style={{ marginTop: "1rem" }}>
+						<span
+							style={{
+								marginLeft: "1rem",
+								color: "#ff4500"
+							}}
+						>
+							{terminateAccountStatus.error}
+						</span>
+					</div>
+				)}
 				<div>
 					<button onClick={onClickBack}>Back</button>
 					<button
