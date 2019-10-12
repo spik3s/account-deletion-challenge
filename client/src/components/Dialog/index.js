@@ -271,6 +271,7 @@ export default class Dialog extends React.Component {
 						onClickBack={this.setPreviousView}
 						email={user.email}
 						transferData={transferData}
+						redirectToHomepage={this.redirectToHomepage}
 					/>
 				);
 			default:

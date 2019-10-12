@@ -12,6 +12,7 @@ class ConfirmView extends React.PureComponent {
 	static propTypes = {
 		transferData: PropTypes.array,
 		onClickBack: PropTypes.func,
+		redirectToHomepage: PropTypes.func,
 		email: PropTypes.string
 	};
 
@@ -68,7 +69,7 @@ class ConfirmView extends React.PureComponent {
 									)
 								}),
 								() => {
-									this.redirectToHomepage();
+									this.props.redirectToHomepage();
 								}
 							);
 						}
