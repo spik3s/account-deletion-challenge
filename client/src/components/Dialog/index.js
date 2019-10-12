@@ -339,7 +339,7 @@ export default class Dialog extends React.Component {
 		});
 	};
 
-	onSetNextPage = () => {
+	setNextView = () => {
 		const { activeModal } = this.state;
 
 		if (activeModal === VIEWS.TRANSFER) {
@@ -351,7 +351,7 @@ export default class Dialog extends React.Component {
 		}
 	};
 
-	onGoToPreviousStep = () => {
+	setPreviousView = () => {
 		const { activeModal } = this.state;
 
 		if (activeModal === VIEWS.FEEDBACK) {
@@ -397,7 +397,7 @@ export default class Dialog extends React.Component {
 			loading;
 		return (
 			<TransferOwnerView
-				nextPage={this.onSetNextPage}
+				onClickNext={this.setNextView}
 				loading={loading}
 				disabledNextPage={disabledNextPage}
 			>
@@ -438,8 +438,8 @@ export default class Dialog extends React.Component {
 					<FeedbackView
 						title="Why would you leave us?"
 						feedbackData={feedbackData}
-						nextPage={this.onSetNextPage}
-						onBackButton={this.onGoToPreviousStep}
+						onClickNext={this.setNextView}
+						onClickBack={this.setPreviousView}
 						showCommentForm
 						comment={comment}
 						onChangeComment={this.onChangeComment}
@@ -452,7 +452,7 @@ export default class Dialog extends React.Component {
 				return (
 					<ConfirmView
 						onClickToDelete={this.onDeleteAccount}
-						onBackButton={this.onGoToPreviousStep}
+						onClickBack={this.setPreviousView}
 						email={user.email}
 						terminateAccountStatus={terminateAccountStatus}
 						resetTerminateAccountStatus={

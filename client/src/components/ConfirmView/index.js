@@ -6,7 +6,7 @@ import { isLoading } from "../../LoadState";
 class ConfirmView extends React.PureComponent {
 	static propTypes = {
 		onClickToDelete: PropTypes.func,
-		onBackButton: PropTypes.func,
+		onClickBack: PropTypes.func,
 		email: PropTypes.string,
 		onTypeEmail: PropTypes.func,
 		resetTerminateAccountStatus: PropTypes.func,
@@ -66,7 +66,7 @@ class ConfirmView extends React.PureComponent {
 	};
 
 	render() {
-		const { onBackButton, onClickToDelete } = this.props;
+		const { onClickBack, onClickToDelete } = this.props;
 		const { markedConsequences } = this.state;
 		return (
 			<div>
@@ -84,7 +84,7 @@ class ConfirmView extends React.PureComponent {
 					</label>
 				</div>
 				<div>
-					<button onClick={onBackButton}>Back</button>
+					<button onClick={onClickBack}>Back</button>
 					<button
 						onClick={onClickToDelete}
 						disabled={this.getStateButton()}

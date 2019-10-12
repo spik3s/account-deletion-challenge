@@ -31,7 +31,7 @@ WorkspaceGroupRows.propTypes = {
 	shouldDisplay: PropTypes.bool
 };
 
-export const TransferOwnerView = ({loading, children, disabledNextPage, nextPage}) => {
+export const TransferOwnerView = ({loading, children, disabledNextPage, onClickNext}) => {
 	const renderLoading = () => <div>Loading...</div>;
 	return (
 		<div>
@@ -41,7 +41,7 @@ export const TransferOwnerView = ({loading, children, disabledNextPage, nextPage
 				projects and workspace admin rights to other person.
 			</p>
 			{loading ? renderLoading() : children}
-			<button disabled={disabledNextPage} onClick={nextPage}>
+			<button disabled={disabledNextPage} onClick={onClickNext}>
 				Next
 			</button>
 		</div>
@@ -50,7 +50,7 @@ export const TransferOwnerView = ({loading, children, disabledNextPage, nextPage
 
 TransferOwnerView.propTypes = {
 	onToggleShowModal: PropTypes.func,
-	nextPage: PropTypes.func,
+	onClickNext: PropTypes.func,
 	children: PropTypes.node.isRequired,
 	loading: PropTypes.bool,
 	disabledNextPage: PropTypes.bool
