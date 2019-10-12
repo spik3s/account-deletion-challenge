@@ -159,7 +159,7 @@ class ConfirmView extends React.PureComponent {
 					<button onClick={onClickBack}>Back</button>
 					<button
 						onClick={this.onClickToDelete}
-						disabled={this.getStateButton()}
+						disabled={this.isDisabled()}
 					>
 						Delete my account
 					</button>
