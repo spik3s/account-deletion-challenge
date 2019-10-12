@@ -24,7 +24,6 @@ class ConfirmView extends React.PureComponent {
 
 	componentWillUnmount() {
 		this.fetchAbortController.abort();
-		this.setState({ ...INITIAL_STATE }, () => console.log(this.state));
 	}
 
 	onClickToDelete = async () => {
@@ -66,9 +65,7 @@ class ConfirmView extends React.PureComponent {
 						if (response.status === 200) {
 							this.setState(
 								state => ({
-									terminateAccountStatus: LoadState.handleLoaded(
-										state.terminateAccountStatus
-									)
+									...INITIAL_STATE
 								}),
 								() => {
 									this.props.redirectToHomepage();
