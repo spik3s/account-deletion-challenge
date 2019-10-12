@@ -1,32 +1,107 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-import { isLoading } from "../../LoadState";
+import * as LoadState from "../../LoadState";
 
+const INITIAL_STATE = {
+	markedConsequences: false,
+	typedEmail: "",
+	terminateAccountStatus: LoadState.pending
+};
 class ConfirmView extends React.PureComponent {
 	static propTypes = {
-		onClickToDelete: PropTypes.func,
+		transferData: PropTypes.array,
 		onClickBack: PropTypes.func,
-		email: PropTypes.string,
-		onTypeEmail: PropTypes.func,
-		resetTerminateAccountStatus: PropTypes.func,
-		terminateAccountStatus: PropTypes.object
+		email: PropTypes.string
 	};
 
 	state = {
-		markedConsequences: false,
-		typedEmail: ""
+		...INITIAL_STATE
 	};
 
 	componentWillUnmount() {
-		this.props.resetTerminateAccountStatus();
+		console.log("component unmounted");
+		this.setState({ ...INITIAL_STATE }, () => console.log(this.state));
 	}
 
-	getStateButton = () => {
-		const { terminateAccountStatus } = this.props;
-		const { markedConsequences } = this.state;
+	onClickToDelete = async () => {
+		const { transferData } = this.props;
 
-		if (isLoading(terminateAccountStatus)) return true;
+		const payload = {
+			transferTargets: transferData.map(assign => ({
+				userId: assign.toUserId,
+				spaceId: assign.workspaceId
+			}))
+			// reason: this.state.feedbacks // do we need this? it's not specified in the server files and we already sent it off to SM
+		};
+
+		this.terminateAccount(payload);
+	};
+
+	terminateAccount = payload => {
+		// Note that there is 30% chance of getting error from the server
+		this.setState(
+			{
+				terminateAccountStatus: LoadState.fetching
+			},
+			() => {
+				window
+					.fetch(
+						"https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/terminateAccount",
+						{
+							method: "POST",
+							mode: "cors",
+							signal: this.fetchAbortController.signal,
+							headers: {
+								"Content-Type": "application/json"
+							},
+							body: JSON.stringify(payload)
+						}
+					)
+					.then(this.handleFetchErrors)
+					.then(response => {
+						if (response.status === 200) {
+							this.setState(
+								state => ({
+									terminateAccountStatus: LoadState.handleLoaded(
+										state.terminateAccountStatus
+									)
+								}),
+								() => {
+									this.redirectToHomepage();
+								}
+							);
+						}
+					})
+					.catch(err => {
+						if (err.name === "AbortError") {
+							this.setState({
+								terminateAccountStatus: LoadState.initWithError(
+									"Terminate Account Fetch request was aborted."
+								)
+							});
+						}
+
+						this.setState({
+							terminateAccountStatus: LoadState.initWithError(
+								"Error deleting account"
+							)
+						});
+					});
+			}
+		);
+	};
+
+	resetTerminateAccountStatus = () => {
+		this.setState({
+			terminateAccountStatus: LoadState.pending
+		});
+	};
+
+	getStateButton = () => {
+		const { markedConsequences, terminateAccountStatus } = this.state;
+
+		if (LoadState.isLoading(terminateAccountStatus)) return true;
 		if (markedConsequences && this.isEmailValid()) return false;
 		return true;
 	};
@@ -66,7 +141,7 @@ class ConfirmView extends React.PureComponent {
 	};
 
 	render() {
-		const { onClickBack, onClickToDelete } = this.props;
+		const { onClickBack } = this.props;
 		const { markedConsequences } = this.state;
 		return (
 			<div>
@@ -86,7 +161,7 @@ class ConfirmView extends React.PureComponent {
 				<div>
 					<button onClick={onClickBack}>Back</button>
 					<button
-						onClick={onClickToDelete}
+						onClick={this.onClickToDelete}
 						disabled={this.getStateButton()}
 					>
 						Delete my account

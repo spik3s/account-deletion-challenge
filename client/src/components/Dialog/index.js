@@ -26,8 +26,7 @@ export default class Dialog extends React.Component {
 		},
 		loading: true,
 		requiredTransferWorkspaces: [],
-		deleteWorkspaces: [],
-		terminateAccountStatus: {}
+		deleteWorkspaces: []
 	};
 
 	fetchAbortController = new AbortController();
@@ -162,70 +161,7 @@ export default class Dialog extends React.Component {
 		);
 	};
 
-	terminateAccount = payload => {
-		// Note that there is 30% chance of getting error from the server
-		this.setState(
-			{
-				terminateAccountStatus: LoadState.fetching
-			},
-			() => {
-				window
-					.fetch(
-						"https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/terminateAccount",
-						{
-							method: "POST",
-							mode: "cors",
-							signal: this.fetchAbortController.signal,
-							headers: {
-								"Content-Type": "application/json"
-							},
-							body: JSON.stringify(payload)
-						}
-					)
-					.then(this.handleFetchErrors)
-					.then(response => {
-						if (response.status === 200) {
-							this.setState(
-								state => ({
-									terminateAccountStatus: LoadState.handleLoaded(
-										state.terminateAccountStatus
-									)
-								}),
-								() => {
-									this.redirectToHomepage();
-								}
-							);
-						}
-					})
-					.catch(err => {
-						if (err.name === "AbortError") {
-							this.setState({
-								terminateAccountStatus: LoadState.initWithError(
-									"Terminate Account Fetch request was aborted."
-								)
-							});
-						}
-
-						this.setState({
-							terminateAccountStatus: LoadState.initWithError(
-								"Error deleting account"
-							)
-						});
-					});
-			}
-		);
-	};
-
-	resetTerminateAccountStatus = () => {
-		this.setState({
-			terminateAccountStatus: LoadState.pending
-		});
-	};
-
-	redirectToHomepage = () => {
-		window.location = "http://www.example.com/";
-	};
-
+	// METHODS FOR FEEDBACK SURVEY
 	isChecked = itemStack => {
 		return this.state.feedbackData.answers.some(el => el.key === itemStack);
 	};
@@ -288,21 +224,6 @@ export default class Dialog extends React.Component {
 		}
 	};
 
-	onDeleteAccount = async () => {
-		const { transferData } = this.state;
-
-		//this.state.transferData should already have everything as we do the check earlier. Double check?
-		const payload = {
-			transferTargets: transferData.map(assign => ({
-				userId: assign.toUserId,
-				spaceId: assign.workspaceId
-			}))
-			// reason: this.state.feedbacks // do we need this? it's not specified in the server files and we already sent it off to SM
-		};
-
-		this.terminateAccount(payload);
-	};
-
 	render() {
 		const {
 			loading,
@@ -311,7 +232,6 @@ export default class Dialog extends React.Component {
 			activeModal,
 			feedbackData,
 			comment,
-			terminateAccountStatus,
 			transferData
 		} = this.state;
 		const { user } = this.props;
@@ -345,13 +265,9 @@ export default class Dialog extends React.Component {
 			case VIEWS.CONFIRM:
 				return (
 					<ConfirmView
-						onClickToDelete={this.onDeleteAccount}
 						onClickBack={this.setPreviousView}
 						email={user.email}
-						terminateAccountStatus={terminateAccountStatus}
-						resetTerminateAccountStatus={
-							this.resetTerminateAccountStatus
-						}
+						transferData={transferData}
 					/>
 				);
 			default:
