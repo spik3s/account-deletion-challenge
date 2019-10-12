@@ -4,8 +4,8 @@ import React from "react";
 import * as LoadState from "../../LoadState";
 
 const INITIAL_STATE = {
-	markedConsequences: false,
-	typedEmail: "",
+	confirmationCheckbox: false,
+	confirmationEmail: "",
 	terminateAccountStatus: LoadState.pending
 };
 class ConfirmView extends React.PureComponent {
@@ -93,41 +93,42 @@ class ConfirmView extends React.PureComponent {
 		);
 	};
 
-	getStateButton = () => {
-		const { markedConsequences, terminateAccountStatus } = this.state;
+	isDisabled = () => {
+		const { confirmationCheckbox, terminateAccountStatus } = this.state;
 
 		if (LoadState.isLoading(terminateAccountStatus)) return true;
-		if (markedConsequences && this.isEmailValid()) return false;
+		if (confirmationCheckbox && this.isEmailValid()) return false;
 		return true;
 	};
 
-	onToggleMarkedConsequences = () => {
+	toggleConfirmationCheckbox = () => {
 		this.setState(state => ({
-			markedConsequences: !state.markedConsequences
+			confirmationCheckbox: !state.confirmationCheckbox
 		}));
 	};
 
 	onTypeEmail = e => {
-		this.setState({ typedEmail: e.target.value });
+		this.setState({ confirmationEmail: e.target.value });
 	};
 
 	isEmailValid = () => {
-		return this.props.email === this.state.typedEmail;
+		return this.props.email === this.state.confirmationEmail;
 	};
 
 	renderEmailInput = () => {
-		const { typedEmail } = this.state;
+		const { confirmationEmail } = this.state;
 		return (
 			<div>
 				<input
 					type="text"
 					placeholder="ross@example.com"
-					value={typedEmail}
+					name="confirmationEmail"
+					value={confirmationEmail}
 					style={{ width: "350px" }}
 					onChange={this.onTypeEmail}
 				/>
 				<span style={{ color: "red", display: "block" }}>
-					{typedEmail
+					{confirmationEmail
 						? !this.isEmailValid() && "Invalid email"
 						: null}
 				</span>
@@ -137,7 +138,7 @@ class ConfirmView extends React.PureComponent {
 
 	render() {
 		const { onClickBack } = this.props;
-		const { markedConsequences } = this.state;
+		const { confirmationCheckbox } = this.state;
 		return (
 			<div>
 				<h1>Delete account</h1>
@@ -147,8 +148,9 @@ class ConfirmView extends React.PureComponent {
 					<label>
 						<input
 							type="checkbox"
-							checked={markedConsequences}
-							onChange={this.onToggleMarkedConsequences}
+							name="confirmationCheckbox"
+							checked={confirmationCheckbox}
+							onChange={this.toggleConfirmationCheckbox}
 						/>
 						I understand the consequences.
 					</label>
