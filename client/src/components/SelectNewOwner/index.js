@@ -6,7 +6,6 @@ import * as LoadState from "../../LoadState";
 export default class SelectNewOwner extends React.Component {
 	static propTypes = {
 		user: PropTypes.object,
-		workspace: PropTypes.object,
 		transferData: PropTypes.array,
 		onAssignToUser: PropTypes.func
 	};
