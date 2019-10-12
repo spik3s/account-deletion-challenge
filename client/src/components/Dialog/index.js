@@ -28,8 +28,6 @@ export default class Dialog extends React.Component {
 			answers: [],
 			comment: ""
 		},
-
-		email: "",
 		loading: true,
 		requiredTransferWorkspaces: [],
 		deleteWorkspaces: [],
