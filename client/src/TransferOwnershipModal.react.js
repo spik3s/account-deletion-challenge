@@ -1,13 +1,12 @@
-import _ from 'lodash'
-import PropTypes from 'prop-types'
-import React from 'react'
+import PropTypes from "prop-types";
+import React from "react";
 
 export const WorkspaceGroupRows = props =>
   !props.shouldDisplay ? null : (
     <div>
       <h3>{props.groupTitle}</h3>
       <div>
-        {_.map(props.workspaces, workspace => (
+				{workspaces.map(workspace => (
           <div key={workspace.spaceId} style={{ marginTop: '1rem' }}>
             <span>Workspace: {workspace.displayName}</span>
             <span>
