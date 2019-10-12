@@ -10,6 +10,8 @@ import { submitToSurveyMonkeyDeleteAccount } from "./SurveyService";
 import * as LoadState from "./LoadState";
 import AssignOwnership from "./AssignOwnership.react";
 
+import * as VIEWS from "./constants/views"
+
 export default class TerminateModalFlow extends React.Component {
 	static propTypes = {
 		user: PropTypes.exact({
@@ -20,7 +22,7 @@ export default class TerminateModalFlow extends React.Component {
 	};
 
 	state = {
-		activeModal: "transfer",
+		activeModal: VIEWS.TRANSFER,
 		transferData: [],
 		feedbackData: {
 			answers: [],
@@ -346,14 +348,14 @@ export default class TerminateModalFlow extends React.Component {
 	onSetNextPage = () => {
 		const { activeModal } = this.state;
 
-		if (activeModal === "transfer") {
-			this.setState({ activeModal: "feedback" });
-		} else if (activeModal === "feedback") {
+		if (activeModal === VIEWS.TRANSFER) {
+			this.setState({ activeModal: VIEWS.FEEDBACK });
+		} else if (activeModal === VIEWS.FEEDBACK) {
 			this.submitSurvey(); // TODO: Actually, this one shouldn't fire until last step? Do we need to show a confirmation or is it supposed to happen in the bg?
 
 			// TODO: First submit the survey, if no errors, then proceed. Currently, we will be swallowing errors
 			this.setState({
-				activeModal: "confirm"
+				activeModal: VIEWS.CONFIRM
 			});
 		}
 	};
@@ -361,11 +363,11 @@ export default class TerminateModalFlow extends React.Component {
 	onGoToPreviousStep = () => {
 		const { activeModal } = this.state;
 
-		if (activeModal === "feedback") {
-			this.setState({ activeModal: "transfer" });
+		if (activeModal === VIEWS.FEEDBACK) {
+			this.setState({ activeModal: VIEWS.TRANSFER });
 		}
-		if (activeModal === "confirm") {
-			this.setState({ activeModal: "feedback" });
+		if (activeModal === VIEWS.CONFIRM) {
+			this.setState({ activeModal: VIEWS.FEEDBACK });
 		}
 	};
 
@@ -438,9 +440,9 @@ export default class TerminateModalFlow extends React.Component {
 		const { user } = this.props;
 
 		switch (activeModal) {
-			case "transfer":
+			case VIEWS.TRANSFER:
 				return this.renderTransferModal();
-			case "feedback":
+			case VIEWS.FEEDBACK:
 				return (
 					<FeedbackSurveyModal
 						title="Why would you leave us?"
@@ -455,7 +457,7 @@ export default class TerminateModalFlow extends React.Component {
 						isChecked={this.isChecked}
 					/>
 				);
-			case "confirm":
+			case VIEWS.CONFIRM:
 				return (
 					<ConfirmEmailModal
 						onClickToDelete={this.onDeleteAccount}
