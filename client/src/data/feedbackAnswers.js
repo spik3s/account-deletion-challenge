@@ -1,4 +1,4 @@
-export const feedbackSurveyItems = [
+export const feedbackAnswers = [
   {
     stack: 'dont_understand',
     title: 'I do not understand how to use this.',

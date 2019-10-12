@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-import { feedbackSurveyItems } from "./FeedbackSurveyItems";
+import { feedbackAnswers } from "./data/feedbackAnswers";
 
 class FeedbackSurveyModal extends React.PureComponent {
 	static propTypes = {
@@ -76,7 +76,7 @@ class FeedbackSurveyModal extends React.PureComponent {
 			<div>
 				<h1>{title}</h1>
 				<div>
-					{feedbackSurveyItems.map((item, key) => (
+					{feedbackAnswers.map((item, key) => (
 						<div key={`${item.stack}-${key}`}>
 							<label>
 								<input
