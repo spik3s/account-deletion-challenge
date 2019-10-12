@@ -12,7 +12,7 @@ import AssignOwnership from "../AssignOwnership";
 
 import * as VIEWS from "../../constants/views";
 
-export default class TerminateModalFlow extends React.Component {
+export default class Dialog extends React.Component {
 	static propTypes = {
 		user: PropTypes.exact({
 			_id: PropTypes.string.isRequired, // not sure about the naming convention here. Leaving unchanged since I assume that's the format dictated by the rest of the app

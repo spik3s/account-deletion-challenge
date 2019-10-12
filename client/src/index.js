@@ -3,11 +3,11 @@ import ReactDOM from 'react-dom'
 
 import './index.css'
 import MockDataProvider from './MockDataProvider'
-import TerminateModalFlow from './components/TerminateModalFlow'
+import Dialog from './components/Dialog'
 
 ReactDOM.render(
   <MockDataProvider>
-    {props => <TerminateModalFlow {...props} />}
+    {props => <Dialog {...props} />}
   </MockDataProvider>,
   document.getElementById('root')
 )
