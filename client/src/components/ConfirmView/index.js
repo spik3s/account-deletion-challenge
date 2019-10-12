@@ -20,8 +20,10 @@ class ConfirmView extends React.PureComponent {
 		...INITIAL_STATE
 	};
 
+	fetchAbortController = new AbortController();
+
 	componentWillUnmount() {
-		console.log("component unmounted");
+		this.fetchAbortController.abort();
 		this.setState({ ...INITIAL_STATE }, () => console.log(this.state));
 	}
 
