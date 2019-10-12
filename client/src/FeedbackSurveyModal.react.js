@@ -24,14 +24,15 @@ class FeedbackSurveyModal extends React.PureComponent {
 	};
 
 	renderInputForm({ stack, canComment, placeHolder }) {
+		const { isChecked, onChangeFeedbackText } = this.props;
 		const prefill = placeHolder && canComment ? placeHolder : "";
 
-		return !this.props.isChecked(stack) ? null : (
+		return !isChecked(stack) ? null : (
 			<div style={!canComment ? { display: "none" } : null}>
 				<input
 					type="text"
 					name={stack}
-					onChange={this.props.onChangeFeedbackText}
+					onChange={onChangeFeedbackText}
 					placeholder={prefill}
 				/>
 			</div>
@@ -39,7 +40,8 @@ class FeedbackSurveyModal extends React.PureComponent {
 	}
 
 	renderCommentForm() {
-		if (!this.props.showCommentForm) return;
+		const { showCommentForm, onChangeComment, feedbackData } = this.props;
+		if (!showCommentForm) return;
 		return (
 			<div style={{ marginTop: "2rem" }}>
 				Comments:
@@ -48,8 +50,8 @@ class FeedbackSurveyModal extends React.PureComponent {
 						type="text"
 						name="comment"
 						id="comments-box"
-						onChange={this.props.onChangeComment}
-						value={this.props.feedbackData.comment}
+						onChange={onChangeComment}
+						value={feedbackData.comment}
 					/>
 				</div>
 			</div>
@@ -57,13 +59,11 @@ class FeedbackSurveyModal extends React.PureComponent {
 	}
 
 	renderButtons() {
+		const { onBackButton, onSubmit } = this.props;
 		return (
 			<div>
-				<button onClick={this.props.onBackButton}>Back</button>
-				<button
-					onClick={this.props.onSubmit}
-					disabled={this.hasAllUnchecked()}
-				>
+				<button onClick={onBackButton}>Back</button>
+				<button onClick={onSubmit} disabled={this.hasAllUnchecked()}>
 					Next
 				</button>
 			</div>
@@ -71,9 +71,10 @@ class FeedbackSurveyModal extends React.PureComponent {
 	}
 
 	render() {
+		const { title, isChecked, onChangeFeedbackCheckbox } = this.props;
 		return (
 			<div>
-				<h1>{this.props.title}</h1>
+				<h1>{title}</h1>
 				<div>
 					{feedbackSurveyItems.map((item, key) => (
 						<div key={`${item.stack}-${key}`}>
@@ -81,10 +82,8 @@ class FeedbackSurveyModal extends React.PureComponent {
 								<input
 									type="checkbox"
 									name={item.stack}
-									checked={this.props.isChecked(item.stack)}
-									onChange={
-										this.props.onChangeFeedbackCheckbox
-									}
+									checked={isChecked(item.stack)}
+									onChange={onChangeFeedbackCheckbox}
 								/>
 								{item.title}
 							</label>

@@ -23,13 +23,18 @@ class ConfirmEmailModal extends React.PureComponent {
 	}
 
 	getStateButton = () => {
-		if (isLoading(this.props.terminateAccountStatus)) return true;
-		if (this.state.markedConsequences && this.isEmailValid()) return false;
+		const { terminateAccountStatus } = this.props;
+		const { markedConsequences } = this.state;
+
+		if (isLoading(terminateAccountStatus)) return true;
+		if (markedConsequences && this.isEmailValid()) return false;
 		return true;
 	};
 
 	onToggleMarkedConsequences = () => {
-		this.setState((state) => ({ markedConsequences: !state.markedConsequences }));
+		this.setState(state => ({
+			markedConsequences: !state.markedConsequences
+		}));
 	};
 
 	onTypeEmail = e => {
@@ -41,18 +46,19 @@ class ConfirmEmailModal extends React.PureComponent {
 	};
 
 	renderEmailInput = () => {
+		const { typedEmail } = this.state;
 		return (
 			<div>
 				<input
 					type="text"
 					placeholder="ross@example.com"
-					value={this.state.typedEmail}
+					value={typedEmail}
 					style={{ width: "350px" }}
 					onChange={this.onTypeEmail}
 				/>
 				<span style={{ color: "red", display: "block" }}>
-          {this.state.typedEmail ?
-            !this.isEmailValid() && "Invalid email"
+					{typedEmail
+						? !this.isEmailValid() && "Invalid email"
 						: null}
 				</span>
 			</div>
@@ -60,6 +66,8 @@ class ConfirmEmailModal extends React.PureComponent {
 	};
 
 	render() {
+		const { onBackButton, onClickToDelete } = this.props;
+		const { markedConsequences } = this.state;
 		return (
 			<div>
 				<h1>Delete account</h1>
@@ -69,16 +77,16 @@ class ConfirmEmailModal extends React.PureComponent {
 					<label>
 						<input
 							type="checkbox"
-							checked={this.state.markedConsequences}
+							checked={markedConsequences}
 							onChange={this.onToggleMarkedConsequences}
 						/>
 						I understand the consequences.
 					</label>
 				</div>
 				<div>
-					<button onClick={this.props.onBackButton}>Back</button>
+					<button onClick={onBackButton}>Back</button>
 					<button
-						onClick={this.props.onClickToDelete}
+						onClick={onClickToDelete}
 						disabled={this.getStateButton()}
 					>
 						Delete my account

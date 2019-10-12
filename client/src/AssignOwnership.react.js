@@ -1,4 +1,3 @@
-
 import PropTypes from "prop-types";
 import React from "react";
 
@@ -25,13 +24,15 @@ export default class AssignOwnership extends React.Component {
 	}
 
 	onAssignToUser = e => {
-		const user = this.props.workspace.transferableMembers.find(
+		const { onAssignToUser, workspace } = this.props;
+		const user = workspace.transferableMembers.find(
 			user => user._id === e.target.value
 		);
-		this.props.onAssignToUser(this.props.workspace, user);
+		onAssignToUser(workspace, user);
 	};
 
 	render() {
+    const {workspace} = this.props
 		return (
 			<div style={{ textDecoration: "underline", cursor: "pointer" }}>
 				<select
@@ -42,7 +43,7 @@ export default class AssignOwnership extends React.Component {
 					<option value="" disabled>
 						Select user
 					</option>
-					{this.props.workspace.transferableMembers.map(user => (
+					{workspace.transferableMembers.map(user => (
 						<option key={user._id} value={user._id}>
 							{user.name}
 						</option>

@@ -59,11 +59,12 @@ export default class TerminateModalFlow extends React.Component {
 		this.fetchAbortController.abort();
 	}
 
-
 	fetchRelatedWorkspaces = () => {
+		const { user } = this.props;
+
 		window
 			.fetch(
-				`https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/fetchWorkspaces?userId=${this.props.user._id}`,
+				`https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/fetchWorkspaces?userId=${user._id}`,
 				{
 					method: "GET",
 					mode: "cors",
@@ -88,14 +89,15 @@ export default class TerminateModalFlow extends React.Component {
 			});
 	};
 
-	transferOwnershipCheck = (workspace, user) => {
+	transferOwnershipCheck = (workspace, toUser) => {
+		const { user } = this.props;
 		return new Promise((resolve, reject) => {
 			this.setState(
 				{
 					transferOwnershipStatus: {
 						workspaceId: workspace.spaceId,
-						fromUserId: this.props.user._id,
-						toUserId: user._id,
+						fromUserId: user._id,
+						toUserId: toUser._id,
 						...LoadState.fetching
 					}
 				},
@@ -112,8 +114,8 @@ export default class TerminateModalFlow extends React.Component {
 								},
 								body: JSON.stringify({
 									workspaceId: workspace.spaceId,
-									fromUserId: this.props.user._id,
-									toUserId: user._id
+									fromUserId: user._id,
+									toUserId: toUser._id
 								})
 							}
 						)
@@ -124,8 +126,8 @@ export default class TerminateModalFlow extends React.Component {
 									{
 										transferOwnershipStatus: {
 											workspaceId: workspace.spaceId,
-											fromUserId: this.props.user._id,
-											toUserId: user._id,
+											fromUserId: user._id,
+											toUserId: toUser._id,
 											...LoadState.completed
 										}
 									},
@@ -147,8 +149,8 @@ export default class TerminateModalFlow extends React.Component {
 								{
 									transferOwnershipStatus: {
 										workspaceId: workspace.spaceId,
-										fromUserId: this.props.user._id,
-										toUserId: user._id,
+										fromUserId: user._id,
+										toUserId: toUser._id,
 										...LoadState.error
 									}
 								},
@@ -228,14 +230,11 @@ export default class TerminateModalFlow extends React.Component {
 		window.location = "http://www.example.com/";
 	};
 
-
 	getTransferData = () => {
 		const {
-			workspaceId,
-			toUserId,
-			status
-		} = this.state.transferOwnershipStatus;
-		const transferData = this.state.transferData; // this is reference, not value
+			transferData,
+			transferOwnershipStatus: { workspaceId, toUserId, status }
+		} = this.state;
 
 		const updateData = transferData.reduce((result, assign) => {
 			if (
@@ -345,9 +344,11 @@ export default class TerminateModalFlow extends React.Component {
 	};
 
 	onSetNextPage = () => {
-		if (this.state.activeModal === "transfer") {
+		const { activeModal } = this.state;
+
+		if (activeModal === "transfer") {
 			this.setState({ activeModal: "feedback" });
-		} else if (this.state.activeModal === "feedback") {
+		} else if (activeModal === "feedback") {
 			this.submitSurvey(); // TODO: Actually, this one shouldn't fire until last step? Do we need to show a confirmation or is it supposed to happen in the bg?
 
 			// TODO: First submit the survey, if no errors, then proceed. Currently, we will be swallowing errors
@@ -358,18 +359,22 @@ export default class TerminateModalFlow extends React.Component {
 	};
 
 	onGoToPreviousStep = () => {
-		if (this.state.activeModal === "feedback") {
+		const { activeModal } = this.state;
+
+		if (activeModal === "feedback") {
 			this.setState({ activeModal: "transfer" });
 		}
-		if (this.state.activeModal === "confirm") {
+		if (activeModal === "confirm") {
 			this.setState({ activeModal: "feedback" });
 		}
 	};
 
 	onDeleteAccount = async () => {
+		const { transferData } = this.state;
+
 		//this.state.transferData should already have everything as we do the check earlier. Double check?
 		const payload = {
-			transferTargets: this.state.transferData.map(assign => ({
+			transferTargets: transferData.map(assign => ({
 				userId: assign.toUserId,
 				spaceId: assign.workspaceId
 			}))
@@ -380,35 +385,42 @@ export default class TerminateModalFlow extends React.Component {
 	};
 
 	renderTransferModal() {
+		const { user } = this.props;
+		const {
+			loading,
+			deleteWorkspaces,
+			requiredTransferWorkspaces
+		} = this.state;
+
 		const transferData = this.getTransferData();
 		const totalAssigned = transferData.length;
 		const hasErrors = transferData.some(el => el.status === "error");
-		const totalWorkspaceRequiredTransfer = this.state
-			.requiredTransferWorkspaces.length;
-		const totalWorkspaceDelete = this.state.deleteWorkspaces.length;
+		const totalWorkspaceRequiredTransfer =
+			requiredTransferWorkspaces.length;
+		const totalWorkspaceDelete = deleteWorkspaces.length;
 		const disabledNextPage =
 			totalAssigned < totalWorkspaceRequiredTransfer ||
 			hasErrors ||
-			this.state.loading;
+			loading;
 		return (
 			<TransferOwnershipModal
 				nextPage={this.onSetNextPage}
-				loading={this.state.loading}
+				loading={loading}
 				disabledNextPage={disabledNextPage}
 			>
 				<WorkspaceGroupRows
-					workspaces={this.state.requiredTransferWorkspaces}
+					workspaces={requiredTransferWorkspaces}
 					groupTitle="The following workspaces require ownership transfer:"
 					shouldDisplay={totalWorkspaceRequiredTransfer > 0}
 				>
 					<AssignOwnership
-						user={this.props.user}
+						user={user}
 						transferData={transferData}
 						onAssignToUser={this.onAssignToUser}
 					/>
 				</WorkspaceGroupRows>
 				<WorkspaceGroupRows
-					workspaces={this.state.deleteWorkspaces}
+					workspaces={deleteWorkspaces}
 					groupTitle="The following workspaces will be deleted:"
 					shouldDisplay={totalWorkspaceDelete > 0}
 				/>
@@ -417,18 +429,26 @@ export default class TerminateModalFlow extends React.Component {
 	}
 
 	render() {
-		switch (this.state.activeModal) {
+		const {
+			activeModal,
+			feedbackData,
+			comment,
+			terminateAccountStatus
+		} = this.state;
+		const { user } = this.props;
+
+		switch (activeModal) {
 			case "transfer":
 				return this.renderTransferModal();
 			case "feedback":
 				return (
 					<FeedbackSurveyModal
 						title="Why would you leave us?"
-						feedbackData={this.state.feedbackData}
+						feedbackData={feedbackData}
 						onSubmit={this.onSetNextPage}
 						onBackButton={this.onGoToPreviousStep}
 						showCommentForm
-						comment={this.state.comment}
+						comment={comment}
 						onChangeComment={this.onChangeComment}
 						onChangeFeedbackText={this.onChangeFeedbackText}
 						onChangeFeedbackCheckbox={this.onChangeFeedbackCheckbox}
@@ -440,10 +460,8 @@ export default class TerminateModalFlow extends React.Component {
 					<ConfirmEmailModal
 						onClickToDelete={this.onDeleteAccount}
 						onBackButton={this.onGoToPreviousStep}
-						email={this.props.user.email}
-						terminateAccountStatus={
-							this.state.terminateAccountStatus
-						}
+						email={user.email}
+						terminateAccountStatus={terminateAccountStatus}
 						resetTerminateAccountStatus={
 							this.resetTerminateAccountStatus
 						}
