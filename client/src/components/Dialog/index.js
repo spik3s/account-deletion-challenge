@@ -1,14 +1,14 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-import ConfirmEmailModal from "../ConfirmEmailModal";
-import TransferOwnershipModal, {
+import ConfirmView from "../ConfirmView";
+import TransferOwnerView, {
 	WorkspaceGroupRows
-} from "../TransferOwnershipModal";
-import FeedbackSurveyModal from "../FeedbackSurveyModal";
+} from "../TransferOwnerView";
+import FeedbackView from "../FeedbackView";
 import { submitToSurveyMonkeyDeleteAccount } from "../../SurveyService";
 import * as LoadState from "../../LoadState";
-import AssignOwnership from "../AssignOwnership";
+import SelectNewOwner from "../SelectNewOwner";
 
 import * as VIEWS from "../../constants/views";
 
@@ -408,7 +408,7 @@ export default class Dialog extends React.Component {
 			hasErrors ||
 			loading;
 		return (
-			<TransferOwnershipModal
+			<TransferOwnerView
 				nextPage={this.onSetNextPage}
 				loading={loading}
 				disabledNextPage={disabledNextPage}
@@ -418,7 +418,7 @@ export default class Dialog extends React.Component {
 					groupTitle="The following workspaces require ownership transfer:"
 					shouldDisplay={totalWorkspaceRequiredTransfer > 0}
 				>
-					<AssignOwnership
+					<SelectNewOwner
 						user={user}
 						transferData={transferData}
 						onAssignToUser={this.onAssignToUser}
@@ -429,7 +429,7 @@ export default class Dialog extends React.Component {
 					groupTitle="The following workspaces will be deleted:"
 					shouldDisplay={totalWorkspaceDelete > 0}
 				/>
-			</TransferOwnershipModal>
+			</TransferOwnerView>
 		);
 	}
 
@@ -447,7 +447,7 @@ export default class Dialog extends React.Component {
 				return this.renderTransferModal();
 			case VIEWS.FEEDBACK:
 				return (
-					<FeedbackSurveyModal
+					<FeedbackView
 						title="Why would you leave us?"
 						feedbackData={feedbackData}
 						onSubmit={this.onSetNextPage}
@@ -462,7 +462,7 @@ export default class Dialog extends React.Component {
 				);
 			case VIEWS.CONFIRM:
 				return (
-					<ConfirmEmailModal
+					<ConfirmView
 						onClickToDelete={this.onDeleteAccount}
 						onBackButton={this.onGoToPreviousStep}
 						email={user.email}

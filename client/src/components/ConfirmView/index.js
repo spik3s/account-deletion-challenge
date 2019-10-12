@@ -3,7 +3,7 @@ import React from "react";
 
 import { isLoading } from "../../LoadState";
 
-class ConfirmEmailModal extends React.PureComponent {
+class ConfirmView extends React.PureComponent {
 	static propTypes = {
 		onClickToDelete: PropTypes.func,
 		onBackButton: PropTypes.func,
@@ -97,4 +97,4 @@ class ConfirmEmailModal extends React.PureComponent {
 	}
 }
 
-export default ConfirmEmailModal;
+export default ConfirmView;

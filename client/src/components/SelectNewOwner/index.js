@@ -3,7 +3,7 @@ import React from "react";
 
 import * as LoadState from "../../LoadState";
 
-export default class AssignOwnership extends React.Component {
+export default class SelectNewOwner extends React.Component {
 	static propTypes = {
 		user: PropTypes.object,
 		workspace: PropTypes.object,

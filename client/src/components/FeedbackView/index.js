@@ -3,7 +3,7 @@ import React from "react";
 
 import { feedbackAnswers } from "../../data/feedbackAnswers";
 
-class FeedbackSurveyModal extends React.PureComponent {
+class FeedbackView extends React.PureComponent {
 	static propTypes = {
 		onSubmit: PropTypes.func,
 		onBackButton: PropTypes.func,
@@ -98,4 +98,4 @@ class FeedbackSurveyModal extends React.PureComponent {
 	}
 }
 
-export default FeedbackSurveyModal;
+export default FeedbackView;
