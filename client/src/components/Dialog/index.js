@@ -230,67 +230,36 @@ export default class Dialog extends React.Component {
 		return this.state.feedbackData.answers.some(el => el.key === itemStack);
 	};
 
-	onChangeFeedbackCheckbox = event => {
-		const target = event.target;
-		const name = target.name;
-
+	onChangeFeedback = event => {
+		const { type, name, value } = event.target;
+		const isCheckbox = type === "checkbox";
 		this.setState(state => {
-			if (this.isChecked(name)) {
-				//remove item
+			if (name === "comment") {
 				return {
 					feedbackData: {
 						...state.feedbackData,
-						answers: state.feedbackData.answers.filter(
-							item => item.key !== name
-						)
+						comment: value
 					}
 				};
 			}
+
 			return {
 				feedbackData: {
 					...state.feedbackData,
-					answers: [
-						...state.feedbackData.answers,
-						{
-							key: name,
-							value: ""
-						}
-					]
-				}
-			};
-		});
-	};
-
-	onChangeFeedbackText = event => {
-		const target = event.target;
-		const value = target.value;
-		const name = target.name;
-
-		this.setState(state => {
-			return {
-				feedbackData: {
-					...state.feedbackData,
-					answers: [
-						...state.feedbackData.answers.filter(
-							item => item.key !== name
-						),
-						{
-							key: name,
-							value: value
-						}
-					]
-				}
-			};
-		});
-	};
-
-	onChangeComment = e => {
-		const { value } = e.target;
-		this.setState(state => {
-			return {
-				feedbackData: {
-					...state.feedbackData,
-					comment: value
+					answers:
+						isCheckbox && this.isChecked(name) // if true, means checkbox is checked, uncheck (remove)
+							? state.feedbackData.answers.filter(
+									item => item.key !== name
+							  )
+							: [
+									...state.feedbackData.answers.filter(
+										item => item.key !== name
+									),
+									{
+										key: name,
+										value: isCheckbox ? "" : value
+									}
+							  ]
 				}
 			};
 		});
@@ -369,9 +338,7 @@ export default class Dialog extends React.Component {
 						onClickBack={this.setPreviousView}
 						showCommentForm
 						comment={comment}
-						onChangeComment={this.onChangeComment}
-						onChangeFeedbackText={this.onChangeFeedbackText}
-						onChangeFeedbackCheckbox={this.onChangeFeedbackCheckbox}
+						onChangeFeedback={this.onChangeFeedback}
 						isChecked={this.isChecked}
 					/>
 				);

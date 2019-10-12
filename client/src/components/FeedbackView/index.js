@@ -8,8 +8,7 @@ class FeedbackView extends React.PureComponent {
 	static propTypes = {
 		onClickNext: PropTypes.func,
 		onClickBack: PropTypes.func,
-		onChangeFeedbackText: PropTypes.func,
-		onChangeFeedbackCheckbox: PropTypes.func,
+		onChangeFeedback: PropTypes.func,
 		isChecked: PropTypes.func,
 		title: PropTypes.node,
 		showCommentForm: PropTypes.bool,
@@ -30,23 +29,25 @@ class FeedbackView extends React.PureComponent {
 	};
 
 	renderInputForm = ({ stack, canComment, placeHolder }) => {
-		const { isChecked, onChangeFeedbackText } = this.props;
+		const { isChecked, onChangeFeedback, feedbackData } = this.props;
 		const prefill = placeHolder && canComment ? placeHolder : "";
+		const answer = feedbackData.answers.find(el => el.key === stack);
 
 		return !isChecked(stack) ? null : (
-			<div style={!canComment ? { display: "none" } : null}>
+			<div>
 				<input
 					type="text"
 					name={stack}
-					onChange={onChangeFeedbackText}
+					onChange={onChangeFeedback}
 					placeholder={prefill}
+					value={answer ? answer.value : ""}
 				/>
 			</div>
 		);
 	};
 
 	renderCommentForm() {
-		const { showCommentForm, onChangeComment, feedbackData } = this.props;
+		const { showCommentForm, onChangeFeedback, feedbackData } = this.props;
 		if (!showCommentForm) return;
 		return (
 			<div style={{ marginTop: "2rem" }}>
@@ -56,7 +57,7 @@ class FeedbackView extends React.PureComponent {
 						type="text"
 						name="comment"
 						id="comments-box"
-						onChange={onChangeComment}
+						onChange={onChangeFeedback}
 						value={feedbackData.comment}
 					/>
 				</div>
@@ -80,7 +81,7 @@ class FeedbackView extends React.PureComponent {
 	}
 
 	render() {
-		const { title, isChecked, onChangeFeedbackCheckbox } = this.props;
+		const { title, isChecked, onChangeFeedback } = this.props;
 		return (
 			<div>
 				<h1>{title}</h1>
@@ -92,11 +93,11 @@ class FeedbackView extends React.PureComponent {
 									type="checkbox"
 									name={item.stack}
 									checked={isChecked(item.stack)}
-									onChange={onChangeFeedbackCheckbox}
+									onChange={onChangeFeedback}
 								/>
 								{item.title}
 							</label>
-							{this.renderInputForm(item)}
+							{item.canComment && this.renderInputForm(item)}
 						</div>
 					))}
 				</div>
