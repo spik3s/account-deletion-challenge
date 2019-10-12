@@ -131,7 +131,7 @@ export default class TerminateModalFlow extends React.Component {
 											...LoadState.completed
 										}
 									},
-									() =>
+									() => 
 										resolve(
 											this.state.transferOwnershipStatus
 										)
@@ -190,11 +190,11 @@ export default class TerminateModalFlow extends React.Component {
 					.then(response => {
 						if (response.status === 200) {
 							this.setState(
-								{
+								state => ({
 									terminateAccountStatus: LoadState.handleLoaded(
-										this.state.terminateAccountStatus
+										state.terminateAccountStatus
 									)
-								},
+								}),
 								() => {
 									this.redirectToHomepage();
 								}
@@ -331,12 +331,12 @@ export default class TerminateModalFlow extends React.Component {
 	};
 
 	onChangeComment = e => {
-		this.setState({
+		this.setState(state => ({
 			feedbackData: {
-				...this.state.feedbackData,
+				...state.feedbackData,
 				comment: e.target.value
 			}
-		});
+		}));
 	};
 
 	submitSurvey = () => {
