@@ -116,11 +116,12 @@ class ConfirmView extends React.PureComponent {
 
 	renderEmailInput = () => {
 		const { confirmationEmail } = this.state;
+		const { email } = this.props;
 		return (
 			<div>
 				<input
 					type="text"
-					placeholder="ross@example.com"
+					placeholder={email}
 					name="confirmationEmail"
 					value={confirmationEmail}
 					style={{ width: "350px" }}
