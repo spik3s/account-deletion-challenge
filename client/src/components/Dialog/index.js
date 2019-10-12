@@ -48,6 +48,34 @@ export default class Dialog extends React.Component {
 		this.fetchAbortController.abort();
 	}
 
+	// METHODS FOR NAVIGATION
+	redirectToHomepage = () => {
+		window.location = "http://www.example.com/";
+	};
+
+	setNextView = () => {
+		const { activeModal } = this.state;
+
+		if (activeModal === VIEWS.TRANSFER) {
+			this.setState({ activeModal: VIEWS.FEEDBACK });
+		} else if (activeModal === VIEWS.FEEDBACK) {
+			this.setState({
+				activeModal: VIEWS.CONFIRM
+			});
+		}
+	};
+
+	setPreviousView = () => {
+		const { activeModal } = this.state;
+
+		if (activeModal === VIEWS.FEEDBACK) {
+			this.setState({ activeModal: VIEWS.TRANSFER });
+		}
+		if (activeModal === VIEWS.CONFIRM) {
+			this.setState({ activeModal: VIEWS.FEEDBACK });
+		}
+	};
+
 	// METHODS FOR WORKSPACES
 	fetchRelatedWorkspaces = () => {
 		const { user } = this.props;
@@ -201,29 +229,6 @@ export default class Dialog extends React.Component {
 		});
 	};
 
-	setNextView = () => {
-		const { activeModal } = this.state;
-
-		if (activeModal === VIEWS.TRANSFER) {
-			this.setState({ activeModal: VIEWS.FEEDBACK });
-		} else if (activeModal === VIEWS.FEEDBACK) {
-			this.setState({
-				activeModal: VIEWS.CONFIRM
-			});
-		}
-	};
-
-	setPreviousView = () => {
-		const { activeModal } = this.state;
-
-		if (activeModal === VIEWS.FEEDBACK) {
-			this.setState({ activeModal: VIEWS.TRANSFER });
-		}
-		if (activeModal === VIEWS.CONFIRM) {
-			this.setState({ activeModal: VIEWS.FEEDBACK });
-		}
-	};
-
 	render() {
 		const {
 			loading,
@@ -231,7 +236,6 @@ export default class Dialog extends React.Component {
 			requiredTransferWorkspaces,
 			activeModal,
 			feedbackData,
-			comment,
 			transferData
 		} = this.state;
 		const { user } = this.props;
@@ -257,7 +261,6 @@ export default class Dialog extends React.Component {
 						onClickNext={this.setNextView}
 						onClickBack={this.setPreviousView}
 						showCommentForm
-						comment={comment}
 						onChangeFeedback={this.onChangeFeedback}
 						isChecked={this.isChecked}
 					/>
