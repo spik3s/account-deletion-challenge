@@ -1,3 +1,6 @@
+import * as API from "./constants/api";
+import { post } from "./utils/fetch";
+
 const CANCEL_WORKSPACE = {
 	PAGE_ID: "48414504",
 	MULTIPLE_CHOICES_ID: "162037852",
@@ -76,17 +79,7 @@ const getSurveyPayload = (answers, comment) => {
 export const submitSurvey = async ({ answers, comment }) => {
 	const surveyPayload = getSurveyPayload(answers, comment);
 
-	const response = await window.fetch(
-		"https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/submitSurvey",
-		{
-			method: "POST",
-			mode: "cors",
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify(surveyPayload)
-		}
-	);
+	const response = await post(API.SUBMIT_SURVEY, surveyPayload);
 	if (response.status !== 200) {
 		throw new Error("Error submitting SurveyMonkey");
 	}

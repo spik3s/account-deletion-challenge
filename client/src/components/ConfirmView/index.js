@@ -2,7 +2,8 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import * as LoadState from "../../LoadState";
-import { handleFetchErrors, fetchAbortController } from "../../utils/fetch";
+import { fetchAbortController, post } from "../../utils/fetch";
+import * as API from "../../constants/api";
 
 const INITIAL_STATE = {
 	confirmationCheckbox: false,
@@ -47,20 +48,7 @@ class ConfirmView extends React.PureComponent {
 				terminateAccountStatus: LoadState.fetching
 			},
 			() => {
-				window
-					.fetch(
-						"https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/terminateAccount",
-						{
-							method: "POST",
-							mode: "cors",
-							signal: fetchAbortController.signal,
-							headers: {
-								"Content-Type": "application/json"
-							},
-							body: JSON.stringify(payload)
-						}
-					)
-					.then(handleFetchErrors)
+				post(API.TERMINATE_ACCOUNT, payload)
 					.then(response => {
 						if (response.status === 200) {
 							this.setState(

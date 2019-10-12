@@ -6,8 +6,13 @@ import TransferOwnerView from "../TransferOwnerView";
 import FeedbackView from "../FeedbackView";
 import * as LoadState from "../../LoadState";
 
-import {handleFetchErrors, fetchAbortController} from "../../utils/fetch"
+import {
+	fetchAbortController,
+	get,
+	post
+} from "../../utils/fetch";
 import * as VIEWS from "../../constants/views";
+import * as API from "../../constants/api";
 
 export default class Dialog extends React.Component {
 	static propTypes = {
@@ -29,9 +34,6 @@ export default class Dialog extends React.Component {
 		requiredTransferWorkspaces: [],
 		deleteWorkspaces: []
 	};
-
-
-	
 
 	componentDidMount() {
 		if (this.props.user) {
@@ -77,17 +79,7 @@ export default class Dialog extends React.Component {
 	fetchRelatedWorkspaces = () => {
 		const { user } = this.props;
 
-		window
-			.fetch(
-				`https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/fetchWorkspaces?userId=${user._id}`,
-				{
-					method: "GET",
-					mode: "cors",
-					signal: fetchAbortController.signal
-				}
-			)
-			.then(handleFetchErrors)
-			.then(response => response.json())
+		get(`${API.WORKSPACES}?userId=${user._id}`)
 			.then(data => {
 				this.setState({
 					loading: false,
@@ -142,20 +134,7 @@ export default class Dialog extends React.Component {
 				})
 			}),
 			() => {
-				window
-					.fetch(
-						"https://us-central1-tw-account-deletion-challenge.cloudfunctions.net/checkOwnership",
-						{
-							method: "POST",
-							mode: "cors",
-							signal: fetchAbortController.signal,
-							headers: {
-								"Content-Type": "application/json"
-							},
-							body: JSON.stringify(ownershipToCheck)
-						}
-					)
-					.then(handleFetchErrors)
+				post(API.CHECK_OWNERSHIP, ownershipToCheck)
 					.then(response => {
 						if (response.status === 200) {
 							this.setState(state => ({
