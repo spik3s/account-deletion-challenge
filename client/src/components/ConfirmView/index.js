@@ -92,12 +92,6 @@ class ConfirmView extends React.PureComponent {
 		);
 	};
 
-	resetTerminateAccountStatus = () => {
-		this.setState({
-			terminateAccountStatus: LoadState.pending
-		});
-	};
-
 	getStateButton = () => {
 		const { markedConsequences, terminateAccountStatus } = this.state;
 
