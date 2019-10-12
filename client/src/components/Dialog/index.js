@@ -49,6 +49,35 @@ export default class Dialog extends React.Component {
 		this.fetchAbortController.abort();
 	}
 
+	// METHODS FOR NAVIGATION
+	redirectToHomepage = () => {
+		window.location = "http://www.example.com/";
+	};
+
+	setNextView = () => {
+		const { activeModal } = this.state;
+
+		if (activeModal === VIEWS.TRANSFER) {
+			this.setState({ activeModal: VIEWS.FEEDBACK });
+		} else if (activeModal === VIEWS.FEEDBACK) {
+			this.setState({
+				activeModal: VIEWS.CONFIRM
+			});
+		}
+	};
+
+	setPreviousView = () => {
+		const { activeModal } = this.state;
+
+		if (activeModal === VIEWS.FEEDBACK) {
+			this.setState({ activeModal: VIEWS.TRANSFER });
+		}
+		if (activeModal === VIEWS.CONFIRM) {
+			this.setState({ activeModal: VIEWS.FEEDBACK });
+		}
+	};
+
+
 	// METHODS FOR WORKSPACES
 	fetchRelatedWorkspaces = () => {
 		const { user } = this.props;
@@ -162,6 +191,47 @@ export default class Dialog extends React.Component {
 		);
 	};
 
+	// METHODS FOR FEEDBACK SURVEY
+	isChecked = itemStack => {
+		return this.state.feedbackData.answers.some(el => el.key === itemStack);
+	};
+
+	onChangeFeedback = event => {
+		const { type, name, value } = event.target;
+		const isCheckbox = type === "checkbox";
+		this.setState(state => {
+			if (name === "comment") {
+				return {
+					feedbackData: {
+						...state.feedbackData,
+						comment: value
+					}
+				};
+			}
+
+			return {
+				feedbackData: {
+					...state.feedbackData,
+					answers:
+						isCheckbox && this.isChecked(name) // if true, means checkbox is checked, uncheck (remove)
+							? state.feedbackData.answers.filter(
+									item => item.key !== name
+							  )
+							: [
+									...state.feedbackData.answers.filter(
+										item => item.key !== name
+									),
+									{
+										key: name,
+										value: isCheckbox ? "" : value
+									}
+							  ]
+				}
+			};
+		});
+	};
+
+	// METHODS FOR DELETING THE ACCOUNT
 	terminateAccount = payload => {
 		// Note that there is 30% chance of getting error from the server
 		this.setState(
@@ -222,72 +292,6 @@ export default class Dialog extends React.Component {
 		});
 	};
 
-	redirectToHomepage = () => {
-		window.location = "http://www.example.com/";
-	};
-
-	isChecked = itemStack => {
-		return this.state.feedbackData.answers.some(el => el.key === itemStack);
-	};
-
-	onChangeFeedback = event => {
-		const { type, name, value } = event.target;
-		const isCheckbox = type === "checkbox";
-		this.setState(state => {
-			if (name === "comment") {
-				return {
-					feedbackData: {
-						...state.feedbackData,
-						comment: value
-					}
-				};
-			}
-
-			return {
-				feedbackData: {
-					...state.feedbackData,
-					answers:
-						isCheckbox && this.isChecked(name) // if true, means checkbox is checked, uncheck (remove)
-							? state.feedbackData.answers.filter(
-									item => item.key !== name
-							  )
-							: [
-									...state.feedbackData.answers.filter(
-										item => item.key !== name
-									),
-									{
-										key: name,
-										value: isCheckbox ? "" : value
-									}
-							  ]
-				}
-			};
-		});
-	};
-
-	setNextView = () => {
-		const { activeModal } = this.state;
-
-		if (activeModal === VIEWS.TRANSFER) {
-			this.setState({ activeModal: VIEWS.FEEDBACK });
-		} else if (activeModal === VIEWS.FEEDBACK) {
-			this.setState({
-				activeModal: VIEWS.CONFIRM
-			});
-		}
-	};
-
-	setPreviousView = () => {
-		const { activeModal } = this.state;
-
-		if (activeModal === VIEWS.FEEDBACK) {
-			this.setState({ activeModal: VIEWS.TRANSFER });
-		}
-		if (activeModal === VIEWS.CONFIRM) {
-			this.setState({ activeModal: VIEWS.FEEDBACK });
-		}
-	};
-
 	onDeleteAccount = async () => {
 		const { transferData } = this.state;
 
@@ -310,7 +314,6 @@ export default class Dialog extends React.Component {
 			requiredTransferWorkspaces,
 			activeModal,
 			feedbackData,
-			comment,
 			terminateAccountStatus,
 			transferData
 		} = this.state;
@@ -337,7 +340,6 @@ export default class Dialog extends React.Component {
 						onClickNext={this.setNextView}
 						onClickBack={this.setPreviousView}
 						showCommentForm
-						comment={comment}
 						onChangeFeedback={this.onChangeFeedback}
 						isChecked={this.isChecked}
 					/>
