@@ -31,7 +31,6 @@ class FeedbackSurveyModal extends React.PureComponent {
 				<input
 					type="text"
 					name={stack}
-					// ref={stack}
 					onChange={this.props.onChangeFeedbackText}
 					placeholder={prefill}
 				/>

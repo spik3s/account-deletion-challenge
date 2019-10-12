@@ -13,22 +13,10 @@ import AssignOwnership from "./AssignOwnership.react";
 export default class TerminateModalFlow extends React.Component {
 	static propTypes = {
 		user: PropTypes.exact({
-			_id: PropTypes.string.isRequired, // not sure about the naming convention here. Leaving unchange since I assume that's the format dictated by the rest of the app
+			_id: PropTypes.string.isRequired, // not sure about the naming convention here. Leaving unchanged since I assume that's the format dictated by the rest of the app
 			name: PropTypes.string.isRequired,
 			email: PropTypes.string.isRequired
 		}).isRequired
-
-		// loading: PropTypes.bool,
-		// requiredTransferWorkspaces: PropTypes.array,
-		// deleteWorkspaces: PropTypes.array,
-		// fetchRelatedWorkspaces: PropTypes.func,
-		// transferOwnershipStatus: PropTypes.object,
-		// transferOwnershipCheck: PropTypes.func,
-		// terminateAccount: PropTypes.func,
-		// terminateAccountError: PropTypes.func,
-		// terminateAccountStatus: PropTypes.object,
-		// resetTerminateAccountStatus: PropTypes.func,
-		// redirectToHomepage: PropTypes.func
 	};
 
 	state = {
@@ -40,7 +28,6 @@ export default class TerminateModalFlow extends React.Component {
 		},
 
 		email: "",
-		/* State moved from MockDataProvider */
 		loading: true,
 		requiredTransferWorkspaces: [],
 		deleteWorkspaces: [],
@@ -51,7 +38,6 @@ export default class TerminateModalFlow extends React.Component {
 			...LoadState.pending
 		},
 		terminateAccountStatus: {}
-		/* END State moved from MockDataProvider */
 	};
 
 	fetchAbortController = new AbortController();
@@ -73,7 +59,6 @@ export default class TerminateModalFlow extends React.Component {
 		this.fetchAbortController.abort();
 	}
 
-	/* METHODS MOVED FROM MockDataProvider */
 
 	fetchRelatedWorkspaces = () => {
 		window
@@ -133,9 +118,7 @@ export default class TerminateModalFlow extends React.Component {
 							}
 						)
 						.then(this.handleFetchErrors)
-						// .then(response => response.text())
 						.then(response => {
-							// TODO: Better error handling here. The original idea might have been better.
 							if (response.status === 200) {
 								this.setState(
 									{
@@ -160,7 +143,6 @@ export default class TerminateModalFlow extends React.Component {
 								);
 							}
 
-							// TODO: What about aborting, won't this cause issues?
 							this.setState(
 								{
 									transferOwnershipStatus: {
@@ -246,7 +228,6 @@ export default class TerminateModalFlow extends React.Component {
 		window.location = "http://www.example.com/";
 	};
 
-	/* END METHODS MOVED FROM MockDataProvider */
 
 	getTransferData = () => {
 		const {
@@ -298,8 +279,6 @@ export default class TerminateModalFlow extends React.Component {
 
 	onChangeFeedbackCheckbox = event => {
 		const target = event.target;
-		// const value =
-		// 	target.type === "checkbox" ? target.checked : target.value;
 		const name = target.name;
 
 		this.setState(state => {
