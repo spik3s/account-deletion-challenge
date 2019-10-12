@@ -2,10 +2,11 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import { feedbackAnswers } from "../../data/feedbackAnswers";
+import { submitSurvey } from "../../SurveyService";
 
 class FeedbackView extends React.PureComponent {
 	static propTypes = {
-		onSubmit: PropTypes.func,
+		nextPage: PropTypes.func,
 		onBackButton: PropTypes.func,
 		onChangeFeedbackText: PropTypes.func,
 		onChangeFeedbackCheckbox: PropTypes.func,
@@ -21,6 +22,11 @@ class FeedbackView extends React.PureComponent {
 
 	hasAllUnchecked = () => {
 		return !(this.props.feedbackData.answers.length > 0);
+	};
+
+	onSubmit = () => {
+		submitSurvey(this.props.feedbackData);
+		this.props.nextPage();
 	};
 
 	renderInputForm = ({ stack, canComment, placeHolder }) => {
@@ -59,11 +65,14 @@ class FeedbackView extends React.PureComponent {
 	}
 
 	renderButtons() {
-		const { onBackButton, onSubmit } = this.props;
+		const { onBackButton } = this.props;
 		return (
 			<div>
 				<button onClick={onBackButton}>Back</button>
-				<button onClick={onSubmit} disabled={this.hasAllUnchecked()}>
+				<button
+					onClick={this.onSubmit}
+					disabled={this.hasAllUnchecked()}
+				>
 					Next
 				</button>
 			</div>

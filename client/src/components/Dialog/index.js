@@ -2,11 +2,8 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import ConfirmView from "../ConfirmView";
-import TransferOwnerView, {
-	WorkspaceGroupRows
-} from "../TransferOwnerView";
+import TransferOwnerView, { WorkspaceGroupRows } from "../TransferOwnerView";
 import FeedbackView from "../FeedbackView";
-import { submitSurvey } from "../../SurveyService";
 import * as LoadState from "../../LoadState";
 import SelectNewOwner from "../SelectNewOwner";
 
@@ -342,16 +339,12 @@ export default class Dialog extends React.Component {
 		});
 	};
 
-
 	onSetNextPage = () => {
 		const { activeModal } = this.state;
 
 		if (activeModal === VIEWS.TRANSFER) {
 			this.setState({ activeModal: VIEWS.FEEDBACK });
 		} else if (activeModal === VIEWS.FEEDBACK) {
-			submitSurvey(this.state.feedbackData); // TODO: Actually, this one shouldn't fire until last step? Do we need to show a confirmation or is it supposed to happen in the bg?
-
-			// TODO: First submit the survey, if no errors, then proceed. Currently, we will be swallowing errors
 			this.setState({
 				activeModal: VIEWS.CONFIRM
 			});
@@ -445,7 +438,7 @@ export default class Dialog extends React.Component {
 					<FeedbackView
 						title="Why would you leave us?"
 						feedbackData={feedbackData}
-						onSubmit={this.onSetNextPage}
+						nextPage={this.onSetNextPage}
 						onBackButton={this.onGoToPreviousStep}
 						showCommentForm
 						comment={comment}
