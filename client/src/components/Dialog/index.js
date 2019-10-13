@@ -77,11 +77,11 @@ export default class Dialog extends React.Component {
 		const { user } = this.props;
 
 		get(`${API.WORKSPACES}?userId=${user._id}`)
-			.then(data => {
+			.then(({ requiredTransferWorkspaces, deleteWorkspaces }) => {
 				this.setState({
 					loading: false,
-					requiredTransferWorkspaces: data.requiredTransferWorkspaces,
-					deleteWorkspaces: data.deleteWorkspaces
+					requiredTransferWorkspaces: requiredTransferWorkspaces,
+					deleteWorkspaces: deleteWorkspaces
 				});
 			})
 			.catch(err => {
@@ -98,8 +98,7 @@ export default class Dialog extends React.Component {
 		if (
 			!transferData.length ||
 			!transferData.some(
-				existingItem =>
-					existingItem.workspaceId === transferStatus.workspaceId
+				({ workspaceId }) => workspaceId === transferStatus.workspaceId
 			)
 		) {
 			return [...transferData, transferStatus];
@@ -132,8 +131,8 @@ export default class Dialog extends React.Component {
 			}),
 			() => {
 				post(API.CHECK_OWNERSHIP, ownershipToCheck)
-					.then(response => {
-						if (response.status === 200) {
+					.then(({status}) => {
+						if (status === 200) {
 							this.setState(state => ({
 								transferData: this.transferStatusUpdate(state, {
 									...ownershipToCheck,
@@ -166,11 +165,11 @@ export default class Dialog extends React.Component {
 	onChangeFeedback = event => {
 		const { type, name, value } = event.target;
 		const isCheckbox = type === "checkbox";
-		this.setState(state => {
+		this.setState(({ feedbackData }) => {
 			if (name === "comment") {
 				return {
 					feedbackData: {
-						...state.feedbackData,
+						...feedbackData,
 						comment: value
 					}
 				};
@@ -178,15 +177,15 @@ export default class Dialog extends React.Component {
 
 			return {
 				feedbackData: {
-					...state.feedbackData,
+					...feedbackData,
 					answers:
 						isCheckbox && isChecked(name, feedbackData.answers) // if true, means checkbox is checked, uncheck (remove)
-							? state.feedbackData.answers.filter(
-									item => item.key !== name
+							? feedbackData.answers.filter(
+									({ key }) => key !== name
 							  )
 							: [
-									...state.feedbackData.answers.filter(
-										item => item.key !== name
+									...feedbackData.answers.filter(
+										({ key }) => key !== name
 									),
 									{
 										key: name,
