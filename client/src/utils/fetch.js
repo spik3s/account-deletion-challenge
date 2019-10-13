@@ -6,24 +6,21 @@ export const handleFetchErrors = response => {
 export const fetchAbortController = new AbortController();
 
 export const get = target =>
-	window
-		.fetch(target, {
-			method: "GET",
-			mode: "cors",
-			signal: fetchAbortController.signal
-		})
+	window.fetch(target, {
+		method: "GET",
+		mode: "cors",
+		signal: fetchAbortController.signal
+	})
 		.then(handleFetchErrors)
 		.then(response => response.json());
 
 export const post = (target, payload) =>
-	window
-		.fetch(target, {
-			method: "POST",
-			mode: "cors",
-			signal: fetchAbortController.signal,
-			headers: {
-				"Content-Type": "application/json"
-			},
-			body: JSON.stringify(payload)
-		})
-		.then(handleFetchErrors);
+	window.fetch(target, {
+		method: "POST",
+		mode: "cors",
+		signal: fetchAbortController.signal,
+		headers: {
+			"Content-Type": "application/json"
+		},
+		body: JSON.stringify(payload)
+	}).then(handleFetchErrors);

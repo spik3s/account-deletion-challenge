@@ -15,7 +15,6 @@ class FeedbackView extends React.PureComponent {
 			answers: PropTypes.array.isRequired,
 			comment: PropTypes.string.isRequired
 		}).isRequired,
-		onChangeComment: PropTypes.func
 	};
 
 	hasAllUnchecked = () => {

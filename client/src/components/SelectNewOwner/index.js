@@ -12,6 +12,7 @@ export default class SelectNewOwner extends React.Component {
 			email: PropTypes.string.isRequired
 		}).isRequired,
 		transferData: PropTypes.array,
+		workspace: PropTypes.object,
 		onOwnerSelect: PropTypes.func
 	};
 
