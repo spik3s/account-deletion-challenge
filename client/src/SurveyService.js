@@ -17,6 +17,10 @@ const CANCEL_WORKSPACE = {
 	}
 };
 
+export const isChecked = (item, array) => {
+	return array.some(el => el.key === item);
+};
+
 const getChoiceID = key => {
 	switch (key) {
 		case "dont_understand":

@@ -2,14 +2,13 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import { feedbackAnswers } from "../../data/feedbackAnswers";
-import { submitSurvey } from "../../SurveyService";
+import { submitSurvey, isChecked } from "../../SurveyService";
 
 class FeedbackView extends React.PureComponent {
 	static propTypes = {
 		onClickNext: PropTypes.func,
 		onClickBack: PropTypes.func,
 		onChangeFeedback: PropTypes.func,
-		isChecked: PropTypes.func,
 		title: PropTypes.node,
 		showCommentForm: PropTypes.bool,
 		feedbackData: PropTypes.exact({
@@ -29,11 +28,11 @@ class FeedbackView extends React.PureComponent {
 	};
 
 	renderInputForm = ({ stack, canComment, placeHolder }) => {
-		const { isChecked, onChangeFeedback, feedbackData } = this.props;
+		const { onChangeFeedback, feedbackData } = this.props;
 		const prefill = placeHolder && canComment ? placeHolder : "";
 		const answer = feedbackData.answers.find(el => el.key === stack);
 
-		return !isChecked(stack) ? null : (
+		return !isChecked(stack, feedbackData.answers) ? null : (
 			<div>
 				<input
 					type="text"
@@ -81,7 +80,7 @@ class FeedbackView extends React.PureComponent {
 	}
 
 	render() {
-		const { title, isChecked, onChangeFeedback } = this.props;
+		const { title, onChangeFeedback, feedbackData } = this.props;
 		return (
 			<div>
 				<h1>{title}</h1>
@@ -92,7 +91,10 @@ class FeedbackView extends React.PureComponent {
 								<input
 									type="checkbox"
 									name={item.stack}
-									checked={isChecked(item.stack)}
+									checked={isChecked(
+										item.stack,
+										feedbackData.answers
+									)}
 									onChange={onChangeFeedback}
 								/>
 								{item.title}

@@ -5,12 +5,9 @@ import ConfirmView from "../ConfirmView";
 import TransferOwnerView from "../TransferOwnerView";
 import FeedbackView from "../FeedbackView";
 import * as LoadState from "../../LoadState";
+import { isChecked } from "../../SurveyService";
 
-import {
-	fetchAbortController,
-	get,
-	post
-} from "../../utils/fetch";
+import { fetchAbortController, get, post } from "../../utils/fetch";
 import * as VIEWS from "../../constants/views";
 import * as API from "../../constants/api";
 
@@ -166,10 +163,6 @@ export default class Dialog extends React.Component {
 	};
 
 	// METHODS FOR FEEDBACK SURVEY
-	isChecked = itemStack => {
-		return this.state.feedbackData.answers.some(el => el.key === itemStack);
-	};
-
 	onChangeFeedback = event => {
 		const { type, name, value } = event.target;
 		const isCheckbox = type === "checkbox";
@@ -187,7 +180,7 @@ export default class Dialog extends React.Component {
 				feedbackData: {
 					...state.feedbackData,
 					answers:
-						isCheckbox && this.isChecked(name) // if true, means checkbox is checked, uncheck (remove)
+						isCheckbox && isChecked(name, feedbackData.answers) // if true, means checkbox is checked, uncheck (remove)
 							? state.feedbackData.answers.filter(
 									item => item.key !== name
 							  )
@@ -238,7 +231,6 @@ export default class Dialog extends React.Component {
 						onClickBack={this.setPreviousView}
 						showCommentForm
 						onChangeFeedback={this.onChangeFeedback}
-						isChecked={this.isChecked}
 					/>
 				);
 			case VIEWS.CONFIRM:
