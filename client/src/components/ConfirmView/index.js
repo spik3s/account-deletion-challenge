@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import * as LoadState from "../../services/LoadState";
-import { fetchAbortController, post } from "../../utils/fetch";
+import { post } from "../../utils/fetch";
 import * as API from "../../constants/api";
 
 const INITIAL_STATE = {
@@ -22,8 +22,10 @@ class ConfirmView extends React.PureComponent {
 		...INITIAL_STATE
 	};
 
+	fetchAbortController = new AbortController();
+
 	componentWillUnmount() {
-		fetchAbortController.abort();
+		this.fetchAbortController.abort();
 	}
 
 	onClickToDelete = async () => {
@@ -48,7 +50,10 @@ class ConfirmView extends React.PureComponent {
 				terminateAccountStatus: LoadState.fetching
 			},
 			() => {
-				post(API.TERMINATE_ACCOUNT, payload)
+
+				post(API.TERMINATE_ACCOUNT, payload, {
+					signal: this.fetchAbortController.signal
+				})
 					.then(response => {
 						if (response.status === 200) {
 							this.setState(
@@ -62,6 +67,7 @@ class ConfirmView extends React.PureComponent {
 						}
 					})
 					.catch(err => {
+						console.log('Error', err.name)
 						this.setState({
 							...INITIAL_STATE,
 							terminateAccountStatus: LoadState.initWithError(

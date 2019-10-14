@@ -5,22 +5,22 @@ export const handleFetchErrors = response => {
 
 export const fetchAbortController = new AbortController();
 
-export const get = target =>
+export const get = (target, props) =>
 	window.fetch(target, {
 		method: "GET",
 		mode: "cors",
-		signal: fetchAbortController.signal
+		...props
 	})
 		.then(handleFetchErrors)
 		.then(response => response.json());
 
-export const post = (target, payload) =>
+export const post = (target, payload, props) =>
 	window.fetch(target, {
 		method: "POST",
 		mode: "cors",
-		signal: fetchAbortController.signal,
 		headers: {
 			"Content-Type": "application/json"
 		},
-		body: JSON.stringify(payload)
+		body: JSON.stringify(payload),
+		...props
 	}).then(handleFetchErrors);

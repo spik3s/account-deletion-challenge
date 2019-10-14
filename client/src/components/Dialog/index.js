@@ -7,7 +7,7 @@ import FeedbackView from "../FeedbackView";
 import * as LoadState from "../../services/LoadState";
 import { isChecked } from "../../services/SurveyService";
 
-import { fetchAbortController, get, post } from "../../utils/fetch";
+import { get, post } from "../../utils/fetch";
 import * as VIEWS from "../../constants/views";
 import * as API from "../../constants/api";
 
@@ -32,6 +32,8 @@ export default class Dialog extends React.Component {
 		deleteWorkspaces: []
 	};
 
+	fetchAbortController = new AbortController();
+
 	componentDidMount() {
 		if (this.props.user) {
 			this.fetchRelatedWorkspaces();
@@ -41,7 +43,7 @@ export default class Dialog extends React.Component {
 	}
 
 	componentWillUnmount() {
-		fetchAbortController.abort();
+		this.fetchAbortController.abort();
 	}
 
 	// METHODS FOR NAVIGATION
@@ -76,7 +78,7 @@ export default class Dialog extends React.Component {
 	fetchRelatedWorkspaces = () => {
 		const { user } = this.props;
 
-		get(`${API.WORKSPACES}?userId=${user._id}`)
+		get(`${API.WORKSPACES}?userId=${user._id}`, {signal: this.fetchAbortController.signal})
 			.then(({ requiredTransferWorkspaces, deleteWorkspaces }) => {
 				this.setState({
 					loading: false,
@@ -130,7 +132,7 @@ export default class Dialog extends React.Component {
 				})
 			}),
 			() => {
-				post(API.CHECK_OWNERSHIP, ownershipToCheck)
+				post(API.CHECK_OWNERSHIP, ownershipToCheck, {signal: this.fetchAbortController.signal})
 					.then(({status}) => {
 						if (status === 200) {
 							this.setState(state => ({
