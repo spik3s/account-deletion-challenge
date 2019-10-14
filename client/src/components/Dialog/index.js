@@ -4,8 +4,8 @@ import React from "react";
 import ConfirmView from "../ConfirmView";
 import TransferOwnerView from "../TransferOwnerView";
 import FeedbackView from "../FeedbackView";
-import * as LoadState from "../../LoadState";
-import { isChecked } from "../../SurveyService";
+import * as LoadState from "../../services/LoadState";
+import { isChecked } from "../../services/SurveyService";
 
 import { fetchAbortController, get, post } from "../../utils/fetch";
 import * as VIEWS from "../../constants/views";

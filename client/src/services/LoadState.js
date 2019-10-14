@@ -1,4 +1,4 @@
-import * as LOAD_STATE from "./constants/loadStatus"
+import * as LOAD_STATE from "../constants/loadStatus"
 
 export const pending = { status: LOAD_STATE.PENDING }
 export const fetching = { status: LOAD_STATE.FETCHING }

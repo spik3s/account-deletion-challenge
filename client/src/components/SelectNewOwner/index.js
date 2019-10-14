@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import React from "react";
 
-import * as LoadState from "../../LoadState";
+import * as LoadState from "../../services/LoadState";
 import * as LOAD_STATE from "../../constants/loadStatus";
 
 export default class SelectNewOwner extends React.Component {

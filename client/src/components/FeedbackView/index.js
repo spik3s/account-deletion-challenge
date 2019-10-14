@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import { feedbackAnswers } from "../../data/feedbackAnswers";
-import { submitSurvey, isChecked } from "../../SurveyService";
+import { submitSurvey, isChecked } from "../../services/SurveyService";
 
 class FeedbackView extends React.PureComponent {
 	static propTypes = {

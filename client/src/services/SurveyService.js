@@ -1,5 +1,5 @@
-import * as API from "./constants/api";
-import { post } from "./utils/fetch";
+import * as API from "../constants/api";
+import { post } from "../utils/fetch";
 
 const CANCEL_WORKSPACE = {
 	PAGE_ID: "48414504",
@@ -15,10 +15,6 @@ const CANCEL_WORKSPACE = {
 		SLOW: "1170264120",
 		OTHERS: "1170286307"
 	}
-};
-
-export const isChecked = (item, array) => {
-	return array.some(el => el.key === item);
 };
 
 const getChoiceID = key => {
@@ -87,4 +83,8 @@ export const submitSurvey = async ({ answers, comment }) => {
 	if (response.status !== 200) {
 		throw new Error("Error submitting SurveyMonkey");
 	}
+};
+
+export const isChecked = (item, array) => {
+	return array.some(el => el.key === item);
 };
