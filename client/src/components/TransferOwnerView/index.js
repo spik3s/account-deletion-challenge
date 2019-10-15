@@ -10,7 +10,7 @@ class TransferOwnerView extends React.PureComponent {
 		transferData: PropTypes.array,
 		onOwnerSelect: PropTypes.func,
 		onClickNext: PropTypes.func,
-		loading: PropTypes.bool,
+		loading: PropTypes.bool.isRequired,
 		user: PropTypes.exact({
 			_id: PropTypes.string.isRequired, // not sure about the naming convention here. Leaving unchanged since I assume that's the format dictated by the rest of the app
 			name: PropTypes.string.isRequired,
