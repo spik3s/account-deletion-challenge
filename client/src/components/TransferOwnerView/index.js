@@ -31,20 +31,20 @@ class TransferOwnerView extends React.PureComponent {
 			onOwnerSelect
 		} = this.props;
 
-		const totalWorkspaceRequiredTransfer =
+		const requiredTransferWorkspacesCount =
 			requiredTransferWorkspaces.length;
 
-		const totalAssigned = transferData.length;
+		const assignedWorkspacesCount = transferData.length;
 		const isIncomplete = transferData.some(
 			el => el.status !== LOAD_STATE.COMPLETED
 		);
 
-		const totalWorkspaceDelete = deleteWorkspaces.length;
+		const deleteWorkspacesCount = deleteWorkspaces.length;
 
 		const disabledNextPage =
-			totalAssigned < totalWorkspaceRequiredTransfer ||
+			assignedWorkspacesCount < requiredTransferWorkspacesCount ||
 			isIncomplete ||
-			loading;
+			loading
 
 		return (
 			<div>
@@ -60,7 +60,7 @@ class TransferOwnerView extends React.PureComponent {
 						<WorkspaceGroupRows
 							workspaces={requiredTransferWorkspaces}
 							groupTitle="The following workspaces require ownership transfer:"
-							shouldDisplay={totalWorkspaceRequiredTransfer > 0}
+							shouldDisplay={requiredTransferWorkspacesCount > 0}
 						>
 							<SelectNewOwner
 								user={user}
@@ -72,7 +72,7 @@ class TransferOwnerView extends React.PureComponent {
 						<WorkspaceGroupRows
 							workspaces={deleteWorkspaces}
 							groupTitle="The following workspaces will be deleted:"
-							shouldDisplay={totalWorkspaceDelete > 0}
+							shouldDisplay={deleteWorkspacesCount > 0}
 						/>
 					</>
 				)}
