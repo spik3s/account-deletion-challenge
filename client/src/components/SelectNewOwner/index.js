@@ -16,14 +16,14 @@ export default class SelectNewOwner extends React.Component {
 		onOwnerSelect: PropTypes.func
 	};
 
-	getAddedMember() {
+	getAssignedUser() {
 		const { workspace, transferData } = this.props;
 
-		const filterMembers = transferData
+		const filterMember = transferData
 			.filter(el => !LoadState.isError(el) && !LoadState.isLoading(el))
 			.find(assign => assign.workspaceId === workspace.spaceId);
 
-		return filterMembers ? filterMembers.toUserId : "";
+		return filterMember ? filterMember.toUserId : "";
 	}
 
 	handleOwnerSelect = e => {
@@ -80,7 +80,7 @@ export default class SelectNewOwner extends React.Component {
 		return (
 			<div style={{ cursor: "pointer" }}>
 				<select
-					value={this.getAddedMember()}
+					value={this.getAssignedUser()}
 					onChange={this.handleOwnerSelect}
 					style={{ minWidth: "3rem" }}
 				>
