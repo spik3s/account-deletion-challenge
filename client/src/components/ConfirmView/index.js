@@ -103,36 +103,35 @@ class ConfirmView extends React.PureComponent {
 		return this.props.email === this.state.confirmationEmail;
 	};
 
-	renderEmailInput = () => {
-		const { confirmationEmail } = this.state;
-		const { email } = this.props;
-		return (
-			<div>
-				<input
-					type="text"
-					placeholder={email}
-					name="confirmationEmail"
-					value={confirmationEmail}
-					style={{ width: "350px" }}
-					onChange={this.onTypeEmail}
-				/>
-				<span style={{ color: "red", display: "block" }}>
-					{confirmationEmail
-						? !this.isEmailValid() && "Invalid email"
-						: null}
-				</span>
-			</div>
-		);
-	};
-
 	render() {
-		const { onClickBack } = this.props;
-		const { confirmationCheckbox, terminateAccountStatus } = this.state;
+		const { onClickBack, email } = this.props;
+		const {
+			confirmationCheckbox,
+			terminateAccountStatus,
+			confirmationEmail
+		} = this.state;
 		return (
 			<div>
 				<h1>Delete account</h1>
 				<p>This action cannot be undone.</p>
-				<div>Please enter your email: {this.renderEmailInput()}</div>
+				<div>
+					<label htmlFor="confirmationEmail" style={{display: "block"}}>
+						Please enter your email:
+					</label>
+					<input
+						type="text"
+						placeholder={email}
+						name="confirmationEmail"
+						value={confirmationEmail}
+						style={{ width: "350px" }}
+						onChange={this.onTypeEmail}
+					/>
+					<span style={{ color: "red", display: "block" }}>
+						{confirmationEmail
+							? !this.isEmailValid() && "Invalid email"
+							: null}
+					</span>
+				</div>
 				<div style={{ marginTop: "1rem" }}>
 					<label>
 						<input
