@@ -14,7 +14,7 @@ class FeedbackView extends React.PureComponent {
 		feedbackData: PropTypes.exact({
 			answers: PropTypes.array.isRequired,
 			comment: PropTypes.string.isRequired
-		}).isRequired,
+		}).isRequired
 	};
 
 	hasAllUnchecked = () => {
@@ -24,11 +24,11 @@ class FeedbackView extends React.PureComponent {
 	onSubmit = () => {
 		// While the specs are saying that user should be forced to take the exit survey
 		// there's no suggestion on what the behaviour should be in case of error.
-		// I decided that while I require users to give answers, I submit the results in 
+		// I decided that while I require users to give answers, I submit the results in
 		// a non-blocking manner that will swallow potential errors (display to console).
-		// I think it would be a frustrating experience to be prevented from completing the 
+		// I think it would be a frustrating experience to be prevented from completing the
 		// original action because of exit survey error.
-		
+
 		submitSurvey(this.props.feedbackData);
 		this.props.onClickNext();
 	};
@@ -51,42 +51,14 @@ class FeedbackView extends React.PureComponent {
 		);
 	};
 
-	renderCommentForm() {
-		const { showCommentForm, onChangeFeedback, feedbackData } = this.props;
-		if (!showCommentForm) return;
-		return (
-			<div style={{ marginTop: "2rem" }}>
-				Comments:
-				<div>
-					<textarea
-						type="text"
-						name="comment"
-						id="comments-box"
-						onChange={onChangeFeedback}
-						value={feedbackData.comment}
-					/>
-				</div>
-			</div>
-		);
-	}
-
-	renderButtons() {
-		const { onClickBack } = this.props;
-		return (
-			<div>
-				<button onClick={onClickBack}>Back</button>
-				<button
-					onClick={this.onSubmit}
-					disabled={this.hasAllUnchecked()}
-				>
-					Next
-				</button>
-			</div>
-		);
-	}
-
 	render() {
-		const { title, onChangeFeedback, feedbackData } = this.props;
+		const {
+			title,
+			onChangeFeedback,
+			feedbackData,
+			showCommentForm,
+			onClickBack
+		} = this.props;
 		return (
 			<div>
 				<h1>{title}</h1>
@@ -109,8 +81,29 @@ class FeedbackView extends React.PureComponent {
 						</div>
 					))}
 				</div>
-				{this.renderCommentForm()}
-				{this.renderButtons()}
+				{showCommentForm && (
+					<div style={{ marginTop: "2rem" }}>
+						Comments:
+						<div>
+							<textarea
+								type="text"
+								name="comment"
+								id="comments-box" // remove this and use name as a way to target the
+								onChange={onChangeFeedback}
+								value={feedbackData.comment}
+							/>
+						</div>
+					</div>
+				)}
+				<div>
+					<button onClick={onClickBack}>Back</button>
+					<button
+						onClick={this.onSubmit}
+						disabled={this.hasAllUnchecked()}
+					>
+						Next
+					</button>
+				</div>
 			</div>
 		);
 	}
