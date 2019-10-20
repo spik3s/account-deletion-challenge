@@ -78,7 +78,9 @@ export default class Dialog extends React.Component {
 	fetchRelatedWorkspaces = () => {
 		const { user } = this.props;
 
-		get(`${API.WORKSPACES}?userId=${user._id}`, {signal: this.fetchAbortController.signal})
+		get(`${API.WORKSPACES}?userId=${user._id}`, {
+			signal: this.fetchAbortController.signal
+		})
 			.then(({ requiredTransferWorkspaces, deleteWorkspaces }) => {
 				this.setState({
 					loading: false,
@@ -132,8 +134,10 @@ export default class Dialog extends React.Component {
 				})
 			}),
 			() => {
-				post(API.CHECK_OWNERSHIP, ownershipToCheck, {signal: this.fetchAbortController.signal})
-					.then(({status}) => {
+				post(API.CHECK_OWNERSHIP, ownershipToCheck, {
+					signal: this.fetchAbortController.signal
+				})
+					.then(({ status }) => {
 						if (status === 200) {
 							this.setState(state => ({
 								transferData: this.transferStatusUpdate(state, {
@@ -163,40 +167,68 @@ export default class Dialog extends React.Component {
 		);
 	};
 
+	updateFeedbackComment = value => {
+		this.setState(({ feedbackData }) => {
+			return {
+				feedbackData: {
+					...feedbackData,
+					comment: value
+				}
+			};
+		});
+	};
+
+	updateFeedbackCheckedAnswers = inputName => {
+		this.setState(({ feedbackData }) => {
+			return {
+				feedbackData: {
+					...feedbackData,
+					answers: isChecked(inputName, feedbackData.answers)
+						? feedbackData.answers.filter(
+								({ key }) => key !== inputName
+						  )
+						: [
+								...feedbackData.answers,
+								{
+									key: inputName
+								}
+						  ]
+				}
+			};
+		});
+	};
+
+	updateFeedbackOtherAnswerValue = (inputName, value) => {
+		this.setState(({ feedbackData }) => {
+			return {
+				feedbackData: {
+					...feedbackData,
+					answers: [
+						...feedbackData.answers.filter(
+							({ key }) => key !== inputName
+						),
+						{
+							key: inputName,
+							value: value
+						}
+					]
+				}
+			};
+		});
+	};
+
 	// METHODS FOR FEEDBACK SURVEY
 	onChangeFeedback = event => {
 		const { type, name, value } = event.target;
 		const isCheckbox = type === "checkbox";
-		this.setState(({ feedbackData }) => {
-			if (name === "comment") {
-				return {
-					feedbackData: {
-						...feedbackData,
-						comment: value
-					}
-				};
-			}
 
-			return {
-				feedbackData: {
-					...feedbackData,
-					answers:
-						isCheckbox && isChecked(name, feedbackData.answers) // if true, means checkbox is checked, uncheck (remove)
-							? feedbackData.answers.filter(
-									({ key }) => key !== name
-							  )
-							: [
-									...feedbackData.answers.filter(
-										({ key }) => key !== name
-									),
-									{
-										key: name,
-										value: isCheckbox ? "" : value
-									}
-							  ]
-				}
-			};
-		});
+		if (name === "comment") {
+			this.updateFeedbackComment(value);
+		} else {
+			isCheckbox
+				? this.updateFeedbackCheckedAnswers(name)
+				: this.updateFeedbackOtherAnswerValue(name, value);
+		}
 	};
 
 	render() {
