@@ -14,13 +14,13 @@ export const appStateType = exact({
 			workspaceId: string.isRequired,
 			error: string
 		})
-	).isRequired,
+	),
 	workspacesLoadStatus: shape({
 		status: string.isRequired,
 		error: string
 	}),
-	requiredTransferWorkspaces: array.isRequired,
-	deleteWorkspaces: array.isRequired
+	requiredTransferWorkspaces: array,
+	deleteWorkspaces: array
 }).isRequired;
 
 export const userType = exact({
