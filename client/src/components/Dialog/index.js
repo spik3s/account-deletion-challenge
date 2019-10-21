@@ -1,4 +1,3 @@
-import PropTypes from "prop-types";
 import React from "react";
 
 import ConfirmView from "../ConfirmView";
@@ -10,14 +9,11 @@ import { get } from "../../utils/fetch";
 import * as VIEWS from "../../constants/views";
 import * as API from "../../constants/api";
 import { AppContext } from "../../AppContext";
+import { userType } from "../../types";
 
 export default class Dialog extends React.Component {
 	static propTypes = {
-		user: PropTypes.exact({
-			_id: PropTypes.string.isRequired, // not sure about the naming convention here. Leaving unchanged since I assume that's the format dictated by the rest of the app
-			name: PropTypes.string.isRequired,
-			email: PropTypes.string.isRequired
-		}).isRequired
+		user: userType
 	};
 
 	state = {
@@ -92,8 +88,8 @@ export default class Dialog extends React.Component {
 	};
 
 	setAppState = (obj, callback) => {
-		this.setState(obj, callback)
-	}
+		this.setState(obj, callback);
+	};
 
 	render() {
 		const { activeModal } = this.state;

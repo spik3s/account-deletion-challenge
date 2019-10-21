@@ -1,28 +1,24 @@
-import PropTypes from "prop-types";
+import {func, string} from "prop-types";
 import React from "react";
 
 import * as LoadState from "../../services/LoadState";
 import { post } from "../../utils/fetch";
 import * as API from "../../constants/api";
 import { withAppContext } from "../../AppContext";
+import { appStateType } from "../../types";
+
 
 const INITIAL_STATE = {
 	confirmationCheckbox: false,
 	confirmationEmail: "",
 	terminateAccountStatus: LoadState.pending
 };
+
 export class ConfirmView extends React.PureComponent {
 	static propTypes = {
-		onClickBack: PropTypes.func,
-		redirectToHomepage: PropTypes.func,
-		email: PropTypes.string,
-		appState: PropTypes.exact({
-			feedbackData: PropTypes.exact({
-				answers: PropTypes.array.isRequired,
-				comment: PropTypes.string.isRequired
-			}),
-			transferData: PropTypes.array.isRequired,
-		}).isRequired
+		onClickBack: func,
+		email: string,
+		appState: appStateType
 	};
 
 	state = {

@@ -1,19 +1,16 @@
-import PropTypes from "prop-types";
+import {array, object, func} from "prop-types";
 import React from "react";
 
 import * as LoadState from "../../services/LoadState";
 import * as LOAD_STATE from "../../constants/loadStatus";
+import { userType } from "../../types";
 
 export default class SelectNewOwner extends React.Component {
 	static propTypes = {
-		user: PropTypes.exact({
-			_id: PropTypes.string.isRequired, // not sure about the naming convention here. Leaving unchanged since I assume that's the format dictated by the rest of the app
-			name: PropTypes.string.isRequired,
-			email: PropTypes.string.isRequired
-		}).isRequired,
-		transferData: PropTypes.array,
-		workspace: PropTypes.object,
-		onOwnerSelect: PropTypes.func
+		user: userType,
+		transferData: array,
+		workspace: object,
+		onOwnerSelect: func
 	};
 
 	getAssignedUser() {

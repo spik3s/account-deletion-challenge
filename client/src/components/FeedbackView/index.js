@@ -1,21 +1,17 @@
-import PropTypes from "prop-types";
+import { func, bool } from "prop-types";
 import React from "react";
 
 import { feedbackAnswers } from "../../data/feedbackAnswers";
 import { submitSurvey, isChecked } from "../../services/SurveyService";
 import { withAppContext } from "../../AppContext";
+import { appStateType } from "../../types";
 
 export class FeedbackView extends React.PureComponent {
 	static propTypes = {
-		onClickNext: PropTypes.func,
-		onClickBack: PropTypes.func,
-		showCommentForm: PropTypes.bool,
-		appState: PropTypes.exact({
-			feedbackData: PropTypes.exact({
-				answers: PropTypes.array.isRequired,
-				comment: PropTypes.string.isRequired
-			}).isRequired
-		}).isRequired
+		onClickNext: func,
+		onClickBack: func,
+		showCommentForm: bool,
+		appState: appStateType
 	};
 
 	hasAllUnchecked = () => {
@@ -180,6 +176,5 @@ export class FeedbackView extends React.PureComponent {
 		);
 	}
 }
-
 
 export default withAppContext(FeedbackView);

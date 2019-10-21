@@ -1,4 +1,4 @@
-import PropTypes from "prop-types";
+import { func, string, array, node, bool } from "prop-types";
 import React from "react";
 
 import SelectNewOwner from "../SelectNewOwner";
@@ -6,21 +6,15 @@ import { post } from "../../utils/fetch";
 import * as LOAD_STATE from "../../constants/loadStatus";
 import * as LoadState from "../../services/LoadState";
 import * as API from "../../constants/api";
+import { appStateType, userType } from "../../types";
 
 import { withAppContext } from "../../AppContext";
 
 export class TransferOwnerView extends React.PureComponent {
 	static propTypes = {
-		// requiredTransferWorkspaces: PropTypes.array.isRequired,
-		// transferData: PropTypes.array,
-		// onOwnerSelect: PropTypes.func,
-		onClickNext: PropTypes.func,
-		// loading: PropTypes.bool.isRequired,
-		user: PropTypes.exact({
-			_id: PropTypes.string.isRequired, // not sure about the naming convention here. Leaving unchanged since I assume that's the format dictated by the rest of the app
-			name: PropTypes.string.isRequired,
-			email: PropTypes.string.isRequired
-		}).isRequired
+		onClickNext: func,
+		user: userType,
+		appState: appStateType
 	};
 
 	fetchAbortController = new AbortController();
@@ -188,10 +182,10 @@ export const WorkspaceGroupRows = ({
 	);
 
 WorkspaceGroupRows.propTypes = {
-	groupTitle: PropTypes.string,
-	workspaces: PropTypes.array.isRequired,
-	children: PropTypes.node,
-	shouldDisplay: PropTypes.bool
+	groupTitle: string,
+	workspaces: array.isRequired,
+	children: node,
+	shouldDisplay: bool
 };
 
 export default withAppContext(TransferOwnerView);
