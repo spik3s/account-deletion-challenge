@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import Component from ".";
+import { TransferOwnerView } from ".";
 import { shallow, render, mount } from "enzyme";
 
 const requiredTransferWorkspacesEmpty = [];
@@ -57,12 +57,15 @@ describe("TransferOwnerView", () => {
 	it("renders without crashing", () => {
 		const div = document.createElement("div");
 		ReactDOM.render(
-			<Component
+			<TransferOwnerView
 				user={user}
-				loading={false}
-				transferData={transferDataEmpty}
-				requiredTransferWorkspaces={requiredTransferWorkspacesEmpty}
-				deleteWorkspaces={deleteWorkspacesEmpty}
+				appState={{
+					loading: false,
+					transferData: transferDataEmpty,
+					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
+					deleteWorkspaces: deleteWorkspacesEmpty
+				}}
+				setAppState={() => {}}
 			/>,
 			div
 		);
@@ -71,12 +74,15 @@ describe("TransferOwnerView", () => {
 
 	it("must render a loading message before data loaded successfully", () => {
 		const wrapper = shallow(
-			<Component
+			<TransferOwnerView
 				user={user}
-				loading={true}
-				transferData={transferDataEmpty}
-				requiredTransferWorkspaces={requiredTransferWorkspacesEmpty}
-				deleteWorkspaces={deleteWorkspacesEmpty}
+				appState={{
+					loading: true,
+					transferData: transferDataEmpty,
+					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
+					deleteWorkspaces: deleteWorkspacesEmpty
+				}}
+				setAppState={() => {}}
 			/>,
 			{ disableLifecycleMethods: true }
 		);
@@ -87,14 +93,16 @@ describe("TransferOwnerView", () => {
 
 	it("must render select inputs with workspace data to transfer", () => {
 		const wrapper = mount(
-			<Component
+			<TransferOwnerView
 				user={user}
-				loading={false}
-				transferData={transferDataEmpty}
-				requiredTransferWorkspaces={
-					mockWorkspaces.requiredTransferWorkspaces
-				}
-				deleteWorkspaces={mockWorkspaces.deleteWorkspaces}
+				appState={{
+					loading: false,
+					transferData: transferDataEmpty,
+					requiredTransferWorkspaces:
+						mockWorkspaces.requiredTransferWorkspaces,
+					deleteWorkspaces: mockWorkspaces.deleteWorkspaces
+				}}
+				setAppState={() => {}}
 			/>
 		);
 
@@ -105,14 +113,16 @@ describe("TransferOwnerView", () => {
 
 	it("must render list of workspaces to delete", () => {
 		const wrapper = render(
-			<Component
+			<TransferOwnerView
 				user={user}
-				loading={false}
-				transferData={transferDataEmpty}
-				requiredTransferWorkspaces={
-					mockWorkspaces.requiredTransferWorkspaces
-				}
-				deleteWorkspaces={mockWorkspaces.deleteWorkspaces}
+				appState={{
+					loading: false,
+					transferData: transferDataEmpty,
+					requiredTransferWorkspaces:
+						mockWorkspaces.requiredTransferWorkspaces,
+					deleteWorkspaces: mockWorkspaces.deleteWorkspaces
+				}}
+				setAppState={() => {}}
 			/>
 		);
 
@@ -123,12 +133,15 @@ describe("TransferOwnerView", () => {
 
 	it("must not display a message if there are no workspaces to transfer", () => {
 		const wrapper = render(
-			<Component
+			<TransferOwnerView
 				user={user}
-				loading={false}
-				transferData={transferDataEmpty}
-				requiredTransferWorkspaces={requiredTransferWorkspacesEmpty}
-				deleteWorkspaces={mockWorkspaces.deleteWorkspaces}
+				appState={{
+					loading: false,
+					transferData: transferDataEmpty,
+					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
+					deleteWorkspaces: mockWorkspaces.deleteWorkspaces
+				}}
+				setAppState={() => {}}
 			/>
 		);
 
@@ -144,14 +157,16 @@ describe("TransferOwnerView", () => {
 	});
 	it("must not display delete workspace message if no workspace to delete", () => {
 		const wrapper = render(
-			<Component
+			<TransferOwnerView
 				user={user}
-				loading={false}
-				transferData={transferDataEmpty}
-				requiredTransferWorkspaces={
-					mockWorkspaces.requiredTransferWorkspaces
-				}
-				deleteWorkspaces={deleteWorkspacesEmpty}
+				appState={{
+					loading: false,
+					transferData: transferDataEmpty,
+					requiredTransferWorkspaces:
+						mockWorkspaces.requiredTransferWorkspaces,
+					deleteWorkspaces: deleteWorkspacesEmpty
+				}}
+				setAppState={() => {}}
 			/>
 		);
 
@@ -167,14 +182,16 @@ describe("TransferOwnerView", () => {
 	it("must not allow to proceed if there's been an error checking a workspace or not all workspaces have been chosen for reassignment", () => {
 		const onClickNextMock = jest.fn();
 		const wrapper = mount(
-			<Component
+			<TransferOwnerView
 				user={user}
-				loading={false}
-				transferData={transferDataEmpty}
-				requiredTransferWorkspaces={
-					mockWorkspaces.requiredTransferWorkspaces
-				}
-				deleteWorkspaces={deleteWorkspacesEmpty}
+				appState={{
+					loading: false,
+					transferData: transferDataEmpty,
+					requiredTransferWorkspaces:
+						mockWorkspaces.requiredTransferWorkspaces,
+					deleteWorkspaces: deleteWorkspacesEmpty
+				}}
+				setAppState={() => {}}
 				onClickNext={onClickNextMock}
 			/>
 		);
@@ -183,18 +200,20 @@ describe("TransferOwnerView", () => {
 
 		expect(onClickNextMock).toHaveBeenCalledTimes(0);
 		wrapper.unmount();
-
 	});
 
 	it("must allow to proceed if loading has finished but list of workspaces is empty", () => {
 		const onClickNextMock = jest.fn();
 		const wrapper = mount(
-			<Component
+			<TransferOwnerView
 				user={user}
-				loading={false}
-				transferData={transferDataEmpty}
-				requiredTransferWorkspaces={requiredTransferWorkspacesEmpty}
-				deleteWorkspaces={deleteWorkspacesEmpty}
+				appState={{
+					loading: false,
+					transferData: transferDataEmpty,
+					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
+					deleteWorkspaces: deleteWorkspacesEmpty
+				}}
+				setAppState={() => {}}
 				onClickNext={onClickNextMock}
 			/>
 		);
