@@ -17,7 +17,7 @@ export default class Dialog extends React.Component {
 	};
 
 	state = {
-		activeModal: VIEWS.TRANSFER,
+		activeView: VIEWS.TRANSFER,
 		transferData: [],
 		feedbackData: {
 			answers: [],
@@ -65,25 +65,25 @@ export default class Dialog extends React.Component {
 	};
 
 	setNextView = () => {
-		const { activeModal } = this.state;
+		const { activeView } = this.state;
 
-		if (activeModal === VIEWS.TRANSFER) {
-			this.setState({ activeModal: VIEWS.FEEDBACK });
-		} else if (activeModal === VIEWS.FEEDBACK) {
+		if (activeView === VIEWS.TRANSFER) {
+			this.setState({ activeView: VIEWS.FEEDBACK });
+		} else if (activeView === VIEWS.FEEDBACK) {
 			this.setState({
-				activeModal: VIEWS.CONFIRM
+				activeView: VIEWS.CONFIRM
 			});
 		}
 	};
 
 	setPreviousView = () => {
-		const { activeModal } = this.state;
+		const { activeView } = this.state;
 
-		if (activeModal === VIEWS.FEEDBACK) {
-			this.setState({ activeModal: VIEWS.TRANSFER });
+		if (activeView === VIEWS.FEEDBACK) {
+			this.setState({ activeView: VIEWS.TRANSFER });
 		}
-		if (activeModal === VIEWS.CONFIRM) {
-			this.setState({ activeModal: VIEWS.FEEDBACK });
+		if (activeView === VIEWS.CONFIRM) {
+			this.setState({ activeView: VIEWS.FEEDBACK });
 		}
 	};
 
@@ -92,7 +92,7 @@ export default class Dialog extends React.Component {
 	};
 
 	render() {
-		const { activeModal } = this.state;
+		const { activeView } = this.state;
 		const { user } = this.props;
 
 		return (
@@ -102,20 +102,20 @@ export default class Dialog extends React.Component {
 					setAppState: this.setAppState
 				}}
 			>
-				{activeModal === VIEWS.TRANSFER && (
+				{activeView === VIEWS.TRANSFER && (
 					<TransferOwnerView
 						user={user}
 						onClickNext={this.setNextView}
 					/>
 				)}
-				{activeModal === VIEWS.FEEDBACK && (
+				{activeView === VIEWS.FEEDBACK && (
 					<FeedbackView
 						onClickNext={this.setNextView}
 						onClickBack={this.setPreviousView}
 						showCommentForm
 					/>
 				)}
-				{activeModal === VIEWS.CONFIRM && (
+				{activeView === VIEWS.CONFIRM && (
 					<ConfirmView
 						onClickBack={this.setPreviousView}
 						email={user.email}

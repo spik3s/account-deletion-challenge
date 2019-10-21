@@ -5,7 +5,7 @@ export const appStateType = exact({
 		answers: array,
 		comment: string
 	}),
-	activeModal: string,
+	activeView: string,
 	transferData: arrayOf(
 		shape({
 			fromUserId: string.isRequired,
