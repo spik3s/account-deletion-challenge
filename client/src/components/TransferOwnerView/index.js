@@ -1,15 +1,21 @@
 import { func } from "prop-types";
 import React from "react";
+import { withAppContext } from "../../AppContext";
+import { post } from "../../utils/fetch";
+import { isEmpty, containsItemWithEqualProp } from "../../utils/general";
+import { appStateType, userType } from "../../types";
 
 import SelectNewOwner from "../SelectNewOwner";
 import WorkspaceGroupRows from "../WorkspaceGroupRows";
-import { post } from "../../utils/fetch";
-import * as LOAD_STATE from "../../constants/loadStatus";
-import * as LoadState from "../../services/LoadState";
 import * as API from "../../constants/api";
-import { appStateType, userType } from "../../types";
-
-import { withAppContext } from "../../AppContext";
+import * as LOAD_STATE from "../../constants/loadStatus";
+import {
+	isLoading,
+	isError,
+	initWithError,
+	fetching,
+	completed
+} from "../../services/LoadState";
 
 export class TransferOwnerView extends React.PureComponent {
 	static propTypes = {
@@ -20,54 +26,36 @@ export class TransferOwnerView extends React.PureComponent {
 
 	fetchAbortController = new AbortController();
 
-	transferStatusUpdate = (currentState, transferStatus) => {
-		const { transferData } = currentState;
-		if (
-			!transferData.length ||
-			!transferData.some(
-				({ workspaceId }) => workspaceId === transferStatus.workspaceId
-			)
-		) {
-			return [...transferData, transferStatus];
-		}
-
-		return transferData.reduce((result, existingItem) => {
-			if (existingItem.workspaceId === transferStatus.workspaceId) {
-				result.push(transferStatus);
-				return result;
-			}
-			result.push(existingItem);
-
-			return result;
-		}, []);
-	};
-
 	transferOwnershipCheck = (workspace, toUser) => {
 		const { user, setAppState } = this.props;
+
 		const ownershipToCheck = {
 			workspaceId: workspace.spaceId,
 			fromUserId: user._id,
 			toUserId: toUser._id
 		};
+
 		setAppState(
-			state => ({
-				transferData: this.transferStatusUpdate(state, {
+			appState =>
+				this.makeNewTransferData(appState.transferData, {
 					...ownershipToCheck,
-					...LoadState.fetching
-				})
-			}),
+					...fetching
+				}),
 			() => {
 				post(API.CHECK_OWNERSHIP, ownershipToCheck, {
 					signal: this.fetchAbortController.signal
 				})
 					.then(({ status }) => {
 						if (status === 200) {
-							setAppState(state => ({
-								transferData: this.transferStatusUpdate(state, {
-									...ownershipToCheck,
-									...LoadState.completed
-								})
-							}));
+							setAppState(appState =>
+								this.makeNewTransferData(
+									appState.transferData,
+									{
+										...ownershipToCheck,
+										...completed
+									}
+								)
+							);
 						}
 					})
 					.catch(err => {
@@ -77,17 +65,51 @@ export class TransferOwnerView extends React.PureComponent {
 							);
 						}
 
-						setAppState(state => ({
-							transferData: this.transferStatusUpdate(state, {
-								...LoadState.initWithError(
+						setAppState(appState =>
+							this.makeNewTransferData(appState.transferData, {
+								...initWithError(
 									"Error while checking for the ownership suitability"
 								),
 								...ownershipToCheck
 							})
-						}));
+						);
 					});
 			}
 		);
+	};
+
+	makeNewTransferData = (currentTransferData, newTransferDetails) => {
+		if (
+			isEmpty(currentTransferData) ||
+			!containsItemWithEqualProp(
+				currentTransferData,
+				newTransferDetails,
+				"workspaceId"
+			)
+		) {
+			return {
+				transferData: [...currentTransferData, newTransferDetails]
+			};
+		}
+
+		const updatedTransferData = currentTransferData.reduce(
+			(newList, existingItem) => {
+				// if object with workspaceId of new object already exists, replace it with new object
+				if (
+					existingItem.workspaceId === newTransferDetails.workspaceId
+				) {
+					newList.push(newTransferDetails);
+					return newList;
+				}
+				// keep the existing objects that represent other workspaces
+				newList.push(existingItem);
+
+				return newList;
+			},
+			[]
+		);
+
+		return { transferData: updatedTransferData };
 	};
 
 	render() {
@@ -100,23 +122,16 @@ export class TransferOwnerView extends React.PureComponent {
 				requiredTransferWorkspaces,
 				workspacesLoadStatus
 			}
-			// onOwnerSelect
 		} = this.props;
 
-		const requiredTransferWorkspacesCount =
-			requiredTransferWorkspaces.length;
-
-		const assignedWorkspacesCount = transferData.length;
-		const isIncomplete = transferData.some(
+		const hasIncompleteChecks = transferData.some(
 			el => el.status !== LOAD_STATE.COMPLETED
 		);
 
-		const deleteWorkspacesCount = deleteWorkspaces.length;
-
 		const disabledNextPage =
-			assignedWorkspacesCount < requiredTransferWorkspacesCount ||
-			isIncomplete ||
-			LoadState.isLoading(workspacesLoadStatus);
+			transferData.length < requiredTransferWorkspaces.length ||
+			hasIncompleteChecks ||
+			isLoading(workspacesLoadStatus);
 
 		return (
 			<div>
@@ -125,18 +140,21 @@ export class TransferOwnerView extends React.PureComponent {
 					Before you leaving, it is required to transfer your tasks,
 					projects and workspace admin rights to other person.
 				</p>
-				{LoadState.isLoading(workspacesLoadStatus) ? (
+
+				{isLoading(workspacesLoadStatus) ? (
 					<div>Loading...</div>
-				) : LoadState.isError(workspacesLoadStatus) ? (
+				) : isError(workspacesLoadStatus) ? (
 					<div>
-						<p style={{ color: "red" }}>{workspacesLoadStatus.error}</p>
+						<p style={{ color: "red" }}>
+							{workspacesLoadStatus.error}
+						</p>
 					</div>
 				) : (
 					<>
 						<WorkspaceGroupRows
 							workspaces={requiredTransferWorkspaces}
 							groupTitle="The following workspaces require ownership transfer:"
-							shouldDisplay={requiredTransferWorkspacesCount > 0}
+							shouldDisplay={!isEmpty(requiredTransferWorkspaces)}
 						>
 							<SelectNewOwner
 								user={user}
@@ -148,8 +166,9 @@ export class TransferOwnerView extends React.PureComponent {
 						<WorkspaceGroupRows
 							workspaces={deleteWorkspaces}
 							groupTitle="The following workspaces will be deleted:"
-							shouldDisplay={deleteWorkspacesCount > 0}
+							shouldDisplay={!isEmpty(deleteWorkspaces)}
 						/>
+
 						<button
 							disabled={disabledNextPage}
 							onClick={onClickNext}
