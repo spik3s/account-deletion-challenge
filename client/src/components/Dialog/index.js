@@ -46,7 +46,28 @@ export default class Dialog extends React.Component {
 		this.fetchAbortController.abort();
 	}
 
-	// METHODS FOR NAVIGATION
+	fetchRelatedWorkspaces = () => {
+		const { user } = this.props;
+
+		get(`${API.WORKSPACES}?userId=${user._id}`, {
+			signal: this.fetchAbortController.signal
+		})
+			.then(({ requiredTransferWorkspaces, deleteWorkspaces }) => {
+				this.setState({
+					loading: false,
+					requiredTransferWorkspaces: requiredTransferWorkspaces,
+					deleteWorkspaces: deleteWorkspaces
+				});
+			})
+			.catch(err => {
+				if (err.name === "AbortError") {
+					console.info("Workspaces Fetch request was aborted.");
+				}
+
+				console.error(err.message);
+			});
+	};
+
 	redirectToHomepage = () => {
 		window.location = "http://www.example.com/";
 	};
@@ -74,28 +95,9 @@ export default class Dialog extends React.Component {
 		}
 	};
 
-	// METHODS FOR WORKSPACES
-	fetchRelatedWorkspaces = () => {
-		const { user } = this.props;
-
-		get(`${API.WORKSPACES}?userId=${user._id}`, {
-			signal: this.fetchAbortController.signal
-		})
-			.then(({ requiredTransferWorkspaces, deleteWorkspaces }) => {
-				this.setState({
-					loading: false,
-					requiredTransferWorkspaces: requiredTransferWorkspaces,
-					deleteWorkspaces: deleteWorkspaces
-				});
-			})
-			.catch(err => {
-				if (err.name === "AbortError") {
-					console.info("Workspaces Fetch request was aborted.");
-				}
-
-				console.error(err.message);
-			});
-	};
+	setAppState = (obj, callback) => {
+		this.setState(obj, callback)
+	}
 
 	render() {
 		const { activeModal } = this.state;
@@ -105,7 +107,7 @@ export default class Dialog extends React.Component {
 			<AppContext.Provider
 				value={{
 					appState: this.state,
-					setAppState: (obj, callback) => this.setState(obj, callback)
+					setAppState: this.setAppState
 				}}
 			>
 				{activeModal === VIEWS.TRANSFER && (
