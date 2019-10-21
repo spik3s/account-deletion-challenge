@@ -68,10 +68,6 @@ export default class Dialog extends React.Component {
 			});
 	};
 
-	redirectToHomepage = () => {
-		window.location = "http://www.example.com/";
-	};
-
 	setNextView = () => {
 		const { activeModal } = this.state;
 
@@ -128,7 +124,6 @@ export default class Dialog extends React.Component {
 					<ConfirmView
 						onClickBack={this.setPreviousView}
 						email={user.email}
-						redirectToHomepage={this.redirectToHomepage}
 					/>
 				)}
 			</AppContext.Provider>

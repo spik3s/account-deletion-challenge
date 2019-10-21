@@ -69,7 +69,7 @@ export class ConfirmView extends React.PureComponent {
 									...INITIAL_STATE
 								}),
 								() => {
-									this.props.redirectToHomepage();
+									this.redirectOnComplete();
 								}
 							);
 						}
@@ -87,6 +87,10 @@ export class ConfirmView extends React.PureComponent {
 					});
 			}
 		);
+	};
+
+	redirectOnComplete = () => {
+		window.location = "http://www.example.com/";
 	};
 
 	isDisabled = () => {
