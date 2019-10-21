@@ -3,22 +3,26 @@ import React from "react";
 
 import { feedbackAnswers } from "../../data/feedbackAnswers";
 import { submitSurvey, isChecked } from "../../services/SurveyService";
+import { AppContext } from "../../AppContext";
 
-class FeedbackView extends React.PureComponent {
+export class FeedbackView extends React.Component {
 	static propTypes = {
 		onClickNext: PropTypes.func,
 		onClickBack: PropTypes.func,
-		onChangeFeedback: PropTypes.func,
+		// onChangeFeedback: PropTypes.func,
 		title: PropTypes.node,
 		showCommentForm: PropTypes.bool,
-		feedbackData: PropTypes.exact({
-			answers: PropTypes.array.isRequired,
-			comment: PropTypes.string.isRequired
-		}).isRequired
+		// feedbackData: PropTypes.exact({
+		// 	answers: PropTypes.array.isRequired,
+		// 	comment: PropTypes.string.isRequired
+		// }).isRequired
 	};
 
 	hasAllUnchecked = () => {
-		return !(this.props.feedbackData.answers.length > 0);
+		const {
+			appState: { feedbackData }
+		} = this.props;
+		return !(feedbackData.answers.length > 0);
 	};
 
 	onSubmit = () => {
@@ -28,13 +32,17 @@ class FeedbackView extends React.PureComponent {
 		// a non-blocking manner that will swallow potential errors (display to console).
 		// I think it would be a frustrating experience to be prevented from completing the
 		// original action because of exit survey error.
-
-		submitSurvey(this.props.feedbackData);
+		const {
+			appState: { feedbackData }
+		} = this.props;
+		submitSurvey(feedbackData);
 		this.props.onClickNext();
 	};
 
 	renderInputForm = ({ stack, canComment, placeHolder }) => {
-		const { onChangeFeedback, feedbackData } = this.props;
+		const {
+			appState: { feedbackData }
+		} = this.props;
 		const prefill = placeHolder && canComment ? placeHolder : "";
 		const answer = feedbackData.answers.find(el => el.key === stack);
 
@@ -43,21 +51,88 @@ class FeedbackView extends React.PureComponent {
 				<input
 					type="text"
 					name={stack}
-					onChange={onChangeFeedback}
+					onChange={this.onChangeFeedback}
 					placeholder={prefill}
-					value={answer ? answer.value : ""}
+					value={answer && answer.value ? answer.value : ""}
 				/>
 			</div>
 		);
 	};
 
+	updateFeedbackComment = value => {
+		const { setAppState } = this.props;
+		setAppState(({ feedbackData }) => {
+			return {
+				feedbackData: {
+					...feedbackData,
+					comment: value
+				}
+			};
+		});
+	};
+
+	updateFeedbackCheckedAnswers = inputName => {
+		const { setAppState } = this.props;
+		setAppState(({ feedbackData }) => {
+			return {
+				feedbackData: {
+					...feedbackData,
+					answers: isChecked(inputName, feedbackData.answers)
+						? feedbackData.answers.filter(
+								({ key }) => key !== inputName
+						  )
+						: [
+								...feedbackData.answers,
+								{
+									key: inputName
+								}
+						  ]
+				}
+			};
+		});
+	};
+
+	updateFeedbackOtherAnswerValue = (inputName, value) => {
+		const { setAppState } = this.props;
+		setAppState(({ feedbackData }) => {
+			return {
+				feedbackData: {
+					...feedbackData,
+					answers: [
+						...feedbackData.answers.filter(
+							({ key }) => key !== inputName
+						),
+						{
+							key: inputName,
+							value: value
+						}
+					]
+				}
+			};
+		});
+	};
+
+	// METHODS FOR FEEDBACK SURVEY
+	onChangeFeedback = event => {
+		const { type, name, value } = event.target;
+		const isCheckbox = type === "checkbox";
+
+		if (name === "comment") {
+			this.updateFeedbackComment(value);
+		} else {
+			isCheckbox
+				? this.updateFeedbackCheckedAnswers(name)
+				: this.updateFeedbackOtherAnswerValue(name, value);
+		}
+	};
+
 	render() {
 		const {
 			title,
-			onChangeFeedback,
-			feedbackData,
+			// feedbackData,
 			showCommentForm,
-			onClickBack
+			onClickBack,
+			appState: { feedbackData }
 		} = this.props;
 		return (
 			<div>
@@ -73,7 +148,7 @@ class FeedbackView extends React.PureComponent {
 										item.stack,
 										feedbackData.answers
 									)}
-									onChange={onChangeFeedback}
+									onChange={this.onChangeFeedback}
 								/>
 								{item.title}
 							</label>
@@ -89,7 +164,7 @@ class FeedbackView extends React.PureComponent {
 								type="text"
 								name="comment"
 								id="comments-box" // remove this and use name as a way to target the
-								onChange={onChangeFeedback}
+								onChange={this.onChangeFeedback}
 								value={feedbackData.comment}
 							/>
 						</div>
@@ -109,4 +184,12 @@ class FeedbackView extends React.PureComponent {
 	}
 }
 
-export default FeedbackView;
+const FeedbackViewWrapper = props => (
+	<AppContext.Consumer>
+		{context => {
+			return <FeedbackView {...props} {...context} />;
+		}}
+	</AppContext.Consumer>
+);
+
+export default FeedbackViewWrapper;

@@ -5,7 +5,6 @@ import ConfirmView from "../ConfirmView";
 import TransferOwnerView from "../TransferOwnerView";
 import FeedbackView from "../FeedbackView";
 import * as LoadState from "../../services/LoadState";
-import { isChecked } from "../../services/SurveyService";
 
 import { get, post } from "../../utils/fetch";
 import * as VIEWS from "../../constants/views";
@@ -170,77 +169,12 @@ export default class Dialog extends React.Component {
 		);
 	};
 
-	updateFeedbackComment = value => {
-		this.setState(({ feedbackData }) => {
-			return {
-				feedbackData: {
-					...feedbackData,
-					comment: value
-				}
-			};
-		});
-	};
-
-	updateFeedbackCheckedAnswers = inputName => {
-		this.setState(({ feedbackData }) => {
-			return {
-				feedbackData: {
-					...feedbackData,
-					answers: isChecked(inputName, feedbackData.answers)
-						? feedbackData.answers.filter(
-								({ key }) => key !== inputName
-						  )
-						: [
-								...feedbackData.answers,
-								{
-									key: inputName
-								}
-						  ]
-				}
-			};
-		});
-	};
-
-	updateFeedbackOtherAnswerValue = (inputName, value) => {
-		this.setState(({ feedbackData }) => {
-			return {
-				feedbackData: {
-					...feedbackData,
-					answers: [
-						...feedbackData.answers.filter(
-							({ key }) => key !== inputName
-						),
-						{
-							key: inputName,
-							value: value
-						}
-					]
-				}
-			};
-		});
-	};
-
-	// METHODS FOR FEEDBACK SURVEY
-	onChangeFeedback = event => {
-		const { type, name, value } = event.target;
-		const isCheckbox = type === "checkbox";
-
-		if (name === "comment") {
-			this.updateFeedbackComment(value);
-		} else {
-			isCheckbox
-				? this.updateFeedbackCheckedAnswers(name)
-				: this.updateFeedbackOtherAnswerValue(name, value);
-		}
-	};
-
 	render() {
 		const {
 			loading,
 			deleteWorkspaces,
 			requiredTransferWorkspaces,
 			activeModal,
-			feedbackData,
 			transferData
 		} = this.state;
 		const { user } = this.props;
@@ -266,11 +200,9 @@ export default class Dialog extends React.Component {
 				{activeModal === VIEWS.FEEDBACK && (
 					<FeedbackView
 						title="Why would you leave us?"
-						feedbackData={feedbackData}
 						onClickNext={this.setNextView}
 						onClickBack={this.setPreviousView}
 						showCommentForm
-						onChangeFeedback={this.onChangeFeedback}
 					/>
 				)}
 				{activeModal === VIEWS.CONFIRM && (
