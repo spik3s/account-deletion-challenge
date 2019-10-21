@@ -72,15 +72,12 @@ describe("testing api", () => {
 	});
 
 	it("callspost(API.CHECK_OWNERSHIP) and returns answer if ownership transfer is cleared", () => {
-		fetch.mockResponseOnce('Conflicted', { status: 409, headers: { 'content-type': 'application/json' } });
+		fetch.mockResponseOnce('OK', { status: 200, headers: { 'content-type': 'application/json' } });
 
 		//assert on the response
 		post(API.CHECK_OWNERSHIP, ownershipToCheck).then(res => {
 			expect(res.status).toEqual(200);
         })
-        .catch(err => {
-            expect(err.status).toEqual(409);
-        });
 
 		//assert on the times called and arguments given to fetch
 		expect(fetch.mock.calls.length).toEqual(1);
