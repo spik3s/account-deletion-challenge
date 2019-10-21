@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { TransferOwnerView } from ".";
 import { shallow, render, mount } from "enzyme";
+import * as LoadState from "../../services/LoadState";
 
 const requiredTransferWorkspacesEmpty = [];
 const transferDataEmpty = [];
@@ -60,7 +61,7 @@ describe("TransferOwnerView", () => {
 			<TransferOwnerView
 				user={user}
 				appState={{
-					loading: false,
+					workspacesLoadStatus: LoadState.pending,
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
 					deleteWorkspaces: deleteWorkspacesEmpty
@@ -77,7 +78,7 @@ describe("TransferOwnerView", () => {
 			<TransferOwnerView
 				user={user}
 				appState={{
-					loading: true,
+					workspacesLoadStatus: LoadState.fetching,
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
 					deleteWorkspaces: deleteWorkspacesEmpty
@@ -96,7 +97,7 @@ describe("TransferOwnerView", () => {
 			<TransferOwnerView
 				user={user}
 				appState={{
-					loading: false,
+					workspacesLoadStatus: LoadState.completed,
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces:
 						mockWorkspaces.requiredTransferWorkspaces,
@@ -116,7 +117,7 @@ describe("TransferOwnerView", () => {
 			<TransferOwnerView
 				user={user}
 				appState={{
-					loading: false,
+					workspacesLoadStatus: LoadState.completed,
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces:
 						mockWorkspaces.requiredTransferWorkspaces,
@@ -136,7 +137,7 @@ describe("TransferOwnerView", () => {
 			<TransferOwnerView
 				user={user}
 				appState={{
-					loading: false,
+					workspacesLoadStatus: LoadState.completed,
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
 					deleteWorkspaces: mockWorkspaces.deleteWorkspaces
@@ -160,7 +161,7 @@ describe("TransferOwnerView", () => {
 			<TransferOwnerView
 				user={user}
 				appState={{
-					loading: false,
+					workspacesLoadStatus: LoadState.completed,
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces:
 						mockWorkspaces.requiredTransferWorkspaces,
@@ -185,7 +186,7 @@ describe("TransferOwnerView", () => {
 			<TransferOwnerView
 				user={user}
 				appState={{
-					loading: false,
+					workspacesLoadStatus: LoadState.completed,
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces:
 						mockWorkspaces.requiredTransferWorkspaces,
@@ -208,7 +209,7 @@ describe("TransferOwnerView", () => {
 			<TransferOwnerView
 				user={user}
 				appState={{
-					loading: false,
+					workspacesLoadStatus: LoadState.completed,
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
 					deleteWorkspaces: deleteWorkspacesEmpty

@@ -89,8 +89,6 @@ export class TransferOwnerView extends React.PureComponent {
 		);
 	};
 
-	renderLoading = () => <div>Loading...</div>;
-
 	render() {
 		const {
 			onClickNext,
@@ -99,7 +97,7 @@ export class TransferOwnerView extends React.PureComponent {
 				transferData,
 				deleteWorkspaces,
 				requiredTransferWorkspaces,
-				loading
+				workspacesLoadStatus
 			}
 			// onOwnerSelect
 		} = this.props;
@@ -117,7 +115,7 @@ export class TransferOwnerView extends React.PureComponent {
 		const disabledNextPage =
 			assignedWorkspacesCount < requiredTransferWorkspacesCount ||
 			isIncomplete ||
-			loading;
+			LoadState.isLoading(workspacesLoadStatus);
 
 		return (
 			<div>
@@ -126,8 +124,12 @@ export class TransferOwnerView extends React.PureComponent {
 					Before you leaving, it is required to transfer your tasks,
 					projects and workspace admin rights to other person.
 				</p>
-				{loading ? (
-					this.renderLoading()
+				{LoadState.isLoading(workspacesLoadStatus) ? (
+					<div>Loading...</div>
+				) : LoadState.isError(workspacesLoadStatus) ? (
+					<div>
+						<p style={{ color: "red" }}>{workspacesLoadStatus.error}</p>
+					</div>
 				) : (
 					<>
 						<WorkspaceGroupRows
@@ -147,11 +149,14 @@ export class TransferOwnerView extends React.PureComponent {
 							groupTitle="The following workspaces will be deleted:"
 							shouldDisplay={deleteWorkspacesCount > 0}
 						/>
+						<button
+							disabled={disabledNextPage}
+							onClick={onClickNext}
+						>
+							Next
+						</button>
 					</>
 				)}
-				<button disabled={disabledNextPage} onClick={onClickNext}>
-					Next
-				</button>
 			</div>
 		);
 	}

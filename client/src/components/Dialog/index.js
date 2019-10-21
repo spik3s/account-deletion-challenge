@@ -23,7 +23,7 @@ export default class Dialog extends React.Component {
 			answers: [],
 			comment: ""
 		},
-		loading: true,
+		workspacesLoadStatus: LoadState.pending,
 		requiredTransferWorkspaces: [],
 		deleteWorkspaces: []
 	};
@@ -45,23 +45,38 @@ export default class Dialog extends React.Component {
 	fetchRelatedWorkspaces = () => {
 		const { user } = this.props;
 
-		get(`${API.WORKSPACES}?userId=${user._id}`, {
-			signal: this.fetchAbortController.signal
-		})
-			.then(({ requiredTransferWorkspaces, deleteWorkspaces }) => {
-				this.setState({
-					loading: false,
-					requiredTransferWorkspaces: requiredTransferWorkspaces,
-					deleteWorkspaces: deleteWorkspaces
-				});
-			})
-			.catch(err => {
-				if (err.name === "AbortError") {
-					console.info("Workspaces Fetch request was aborted.");
-				}
-
-				console.error(err.message);
-			});
+		this.setState(
+			{
+				workspacesLoadStatus: LoadState.fetching
+			},
+			() => {
+				get(`${API.WORKSPACES}?userId=${user._id}`, {
+					signal: this.fetchAbortController.signal
+				})
+					.then(
+						({ requiredTransferWorkspaces, deleteWorkspaces }) => {
+							this.setState({
+								workspacesLoadStatus: LoadState.completed,
+								requiredTransferWorkspaces: requiredTransferWorkspaces,
+								deleteWorkspaces: deleteWorkspaces
+							});
+						}
+					)
+					.catch(err => {
+						if (err.name === "AbortError") {
+							console.info(
+								"Workspaces Fetch request was aborted."
+							);
+						} else {
+							this.setState({
+								workspacesLoadStatus: LoadState.initWithError(
+									"Error! Couldn't load the workspaces."
+								)
+							});
+						}
+					});
+			}
+		);
 	};
 
 	setNextView = () => {

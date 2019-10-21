@@ -1,4 +1,4 @@
-import { array, string, bool, exact, arrayOf, shape } from "prop-types";
+import { array, string, exact, arrayOf, shape } from "prop-types";
 
 export const appStateType = exact({
 	feedbackData: exact({
@@ -15,7 +15,10 @@ export const appStateType = exact({
 			error: string
 		})
 	).isRequired,
-	loading: bool.isRequired,
+	workspacesLoadStatus: shape({
+		status: string.isRequired,
+		error: string
+	}),
 	requiredTransferWorkspaces: array.isRequired,
 	deleteWorkspaces: array.isRequired
 }).isRequired;
