@@ -4,7 +4,7 @@ import React from "react";
 import * as LoadState from "../../services/LoadState";
 import { post } from "../../utils/fetch";
 import * as API from "../../constants/api";
-import { AppContext } from "../../AppContext";
+import { withAppContext } from "../../AppContext";
 
 const INITIAL_STATE = {
 	confirmationCheckbox: false,
@@ -180,12 +180,4 @@ export class ConfirmView extends React.PureComponent {
 	}
 }
 
-const ConfirmViewWrapper = props => (
-	<AppContext.Consumer>
-		{context => {
-			return <ConfirmView {...props} {...context} />;
-		}}
-	</AppContext.Consumer>
-);
-
-export default ConfirmViewWrapper;
+export default withAppContext(ConfirmView);

@@ -3,7 +3,7 @@ import React from "react";
 
 import { feedbackAnswers } from "../../data/feedbackAnswers";
 import { submitSurvey, isChecked } from "../../services/SurveyService";
-import { AppContext } from "../../AppContext";
+import { withAppContext } from "../../AppContext";
 
 export class FeedbackView extends React.PureComponent {
 	static propTypes = {
@@ -185,12 +185,5 @@ export class FeedbackView extends React.PureComponent {
 	}
 }
 
-const FeedbackViewWrapper = props => (
-	<AppContext.Consumer>
-		{context => {
-			return <FeedbackView {...props} {...context} />;
-		}}
-	</AppContext.Consumer>
-);
 
-export default FeedbackViewWrapper;
+export default withAppContext(FeedbackView);

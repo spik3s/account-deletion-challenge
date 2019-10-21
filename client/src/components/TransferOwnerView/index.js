@@ -7,7 +7,7 @@ import * as LOAD_STATE from "../../constants/loadStatus";
 import * as LoadState from "../../services/LoadState";
 import * as API from "../../constants/api";
 
-import { AppContext } from "../../AppContext";
+import { withAppContext } from "../../AppContext";
 
 export class TransferOwnerView extends React.PureComponent {
 	static propTypes = {
@@ -194,12 +194,4 @@ WorkspaceGroupRows.propTypes = {
 	shouldDisplay: PropTypes.bool
 };
 
-const TransferOwnerViewWrapper = props => (
-	<AppContext.Consumer>
-		{context => {
-			return <TransferOwnerView {...props} {...context} />;
-		}}
-	</AppContext.Consumer>
-);
-
-export default TransferOwnerViewWrapper;
+export default withAppContext(TransferOwnerView);
