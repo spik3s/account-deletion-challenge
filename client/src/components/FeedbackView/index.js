@@ -5,17 +5,18 @@ import { feedbackAnswers } from "../../data/feedbackAnswers";
 import { submitSurvey, isChecked } from "../../services/SurveyService";
 import { AppContext } from "../../AppContext";
 
-export class FeedbackView extends React.Component {
+export class FeedbackView extends React.PureComponent {
 	static propTypes = {
 		onClickNext: PropTypes.func,
 		onClickBack: PropTypes.func,
-		// onChangeFeedback: PropTypes.func,
 		title: PropTypes.node,
 		showCommentForm: PropTypes.bool,
-		// feedbackData: PropTypes.exact({
-		// 	answers: PropTypes.array.isRequired,
-		// 	comment: PropTypes.string.isRequired
-		// }).isRequired
+		appState: PropTypes.exact({
+			feedbackData: PropTypes.exact({
+				answers: PropTypes.array.isRequired,
+				comment: PropTypes.string.isRequired
+			}).isRequired
+		}).isRequired
 	};
 
 	hasAllUnchecked = () => {
