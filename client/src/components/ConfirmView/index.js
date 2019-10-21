@@ -4,18 +4,25 @@ import React from "react";
 import * as LoadState from "../../services/LoadState";
 import { post } from "../../utils/fetch";
 import * as API from "../../constants/api";
+import { AppContext } from "../../AppContext";
 
 const INITIAL_STATE = {
 	confirmationCheckbox: false,
 	confirmationEmail: "",
 	terminateAccountStatus: LoadState.pending
 };
-class ConfirmView extends React.PureComponent {
+export class ConfirmView extends React.PureComponent {
 	static propTypes = {
-		transferData: PropTypes.array,
 		onClickBack: PropTypes.func,
 		redirectToHomepage: PropTypes.func,
-		email: PropTypes.string
+		email: PropTypes.string,
+		appState: PropTypes.exact({
+			feedbackData: PropTypes.exact({
+				answers: PropTypes.array.isRequired,
+				comment: PropTypes.string.isRequired
+			}),
+			transferData: PropTypes.array.isRequired,
+		}).isRequired
 	};
 
 	state = {
@@ -29,7 +36,9 @@ class ConfirmView extends React.PureComponent {
 	}
 
 	onClickToDelete = async () => {
-		const { transferData } = this.props;
+		const {
+			appState: { transferData }
+		} = this.props;
 
 		const payload = {
 			transferTargets: transferData.map(assign => ({
@@ -50,7 +59,6 @@ class ConfirmView extends React.PureComponent {
 				terminateAccountStatus: LoadState.fetching
 			},
 			() => {
-
 				post(API.TERMINATE_ACCOUNT, payload, {
 					signal: this.fetchAbortController.signal
 				})
@@ -67,7 +75,7 @@ class ConfirmView extends React.PureComponent {
 						}
 					})
 					.catch(err => {
-						console.log('Error', err.name)
+						console.log("Error", err.name);
 						this.setState({
 							...INITIAL_STATE,
 							terminateAccountStatus: LoadState.initWithError(
@@ -115,7 +123,10 @@ class ConfirmView extends React.PureComponent {
 				<h1>Delete account</h1>
 				<p>This action cannot be undone.</p>
 				<div>
-					<label htmlFor="confirmationEmail" style={{display: "block"}}>
+					<label
+						htmlFor="confirmationEmail"
+						style={{ display: "block" }}
+					>
 						Please enter your email:
 					</label>
 					<input
@@ -169,4 +180,12 @@ class ConfirmView extends React.PureComponent {
 	}
 }
 
-export default ConfirmView;
+const ConfirmViewWrapper = props => (
+	<AppContext.Consumer>
+		{context => {
+			return <ConfirmView {...props} {...context} />;
+		}}
+	</AppContext.Consumer>
+);
+
+export default ConfirmViewWrapper;
