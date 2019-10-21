@@ -1,7 +1,8 @@
-import { func, string, array, node, bool } from "prop-types";
+import { func } from "prop-types";
 import React from "react";
 
 import SelectNewOwner from "../SelectNewOwner";
+import WorkspaceGroupRows from "../WorkspaceGroupRows";
 import { post } from "../../utils/fetch";
 import * as LOAD_STATE from "../../constants/loadStatus";
 import * as LoadState from "../../services/LoadState";
@@ -161,36 +162,5 @@ export class TransferOwnerView extends React.PureComponent {
 		);
 	}
 }
-
-export const WorkspaceGroupRows = ({
-	shouldDisplay,
-	groupTitle,
-	workspaces,
-	children
-}) =>
-	!shouldDisplay ? null : (
-		<div>
-			<h3>{groupTitle}</h3>
-			<div>
-				{workspaces.map(workspace => (
-					<div key={workspace.spaceId} style={{ marginTop: "1rem" }}>
-						<span>Workspace: {workspace.displayName}</span>
-						<span>
-							{React.Children.count(children) === 0
-								? null
-								: React.cloneElement(children, { workspace })}
-						</span>
-					</div>
-				))}
-			</div>
-		</div>
-	);
-
-WorkspaceGroupRows.propTypes = {
-	groupTitle: string,
-	workspaces: array.isRequired,
-	children: node,
-	shouldDisplay: bool
-};
 
 export default withAppContext(TransferOwnerView);
