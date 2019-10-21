@@ -10,6 +10,9 @@ import { isChecked } from "../../services/SurveyService";
 import { get, post } from "../../utils/fetch";
 import * as VIEWS from "../../constants/views";
 import * as API from "../../constants/api";
+import { AppContext } from "../../AppContext";
+
+
 
 export default class Dialog extends React.Component {
 	static propTypes = {
@@ -242,9 +245,14 @@ export default class Dialog extends React.Component {
 		} = this.state;
 		const { user } = this.props;
 
-		switch (activeModal) {
-			case VIEWS.TRANSFER:
-				return (
+		return (
+			<AppContext.Provider
+				value={{
+					appState: this.state,
+					setAppState: obj => this.setState(obj)
+				}}
+			>
+				{activeModal === VIEWS.TRANSFER && (
 					<TransferOwnerView
 						transferData={transferData}
 						user={user}
@@ -254,9 +262,8 @@ export default class Dialog extends React.Component {
 						deleteWorkspaces={deleteWorkspaces}
 						onOwnerSelect={this.transferOwnershipCheck}
 					/>
-				);
-			case VIEWS.FEEDBACK:
-				return (
+				)}
+				{activeModal === VIEWS.FEEDBACK && (
 					<FeedbackView
 						title="Why would you leave us?"
 						feedbackData={feedbackData}
@@ -265,18 +272,16 @@ export default class Dialog extends React.Component {
 						showCommentForm
 						onChangeFeedback={this.onChangeFeedback}
 					/>
-				);
-			case VIEWS.CONFIRM:
-				return (
+				)}
+				{activeModal === VIEWS.CONFIRM && (
 					<ConfirmView
 						onClickBack={this.setPreviousView}
 						email={user.email}
 						transferData={transferData}
 						redirectToHomepage={this.redirectToHomepage}
 					/>
-				);
-			default:
-				return null;
-		}
+				)}
+			</AppContext.Provider>
+		);
 	}
 }
