@@ -2,15 +2,20 @@ import PropTypes from "prop-types";
 import React from "react";
 
 import SelectNewOwner from "../SelectNewOwner";
+import { post } from "../../utils/fetch";
 import * as LOAD_STATE from "../../constants/loadStatus";
+import * as LoadState from "../../services/LoadState";
+import * as API from "../../constants/api";
 
-class TransferOwnerView extends React.PureComponent {
+import { AppContext } from "../../AppContext";
+
+export class TransferOwnerView extends React.PureComponent {
 	static propTypes = {
-		requiredTransferWorkspaces: PropTypes.array.isRequired,
-		transferData: PropTypes.array,
-		onOwnerSelect: PropTypes.func,
+		// requiredTransferWorkspaces: PropTypes.array.isRequired,
+		// transferData: PropTypes.array,
+		// onOwnerSelect: PropTypes.func,
 		onClickNext: PropTypes.func,
-		loading: PropTypes.bool.isRequired,
+		// loading: PropTypes.bool.isRequired,
 		user: PropTypes.exact({
 			_id: PropTypes.string.isRequired, // not sure about the naming convention here. Leaving unchanged since I assume that's the format dictated by the rest of the app
 			name: PropTypes.string.isRequired,
@@ -18,17 +23,91 @@ class TransferOwnerView extends React.PureComponent {
 		}).isRequired
 	};
 
+	fetchAbortController = new AbortController();
+
+	transferStatusUpdate = (currentState, transferStatus) => {
+		const { transferData } = currentState;
+		if (
+			!transferData.length ||
+			!transferData.some(
+				({ workspaceId }) => workspaceId === transferStatus.workspaceId
+			)
+		) {
+			return [...transferData, transferStatus];
+		}
+
+		return transferData.reduce((result, existingItem) => {
+			if (existingItem.workspaceId === transferStatus.workspaceId) {
+				result.push(transferStatus);
+				return result;
+			}
+			result.push(existingItem);
+
+			return result;
+		}, []);
+	};
+
+	transferOwnershipCheck = (workspace, toUser) => {
+		const { user, setAppState } = this.props;
+		const ownershipToCheck = {
+			workspaceId: workspace.spaceId,
+			fromUserId: user._id,
+			toUserId: toUser._id
+		};
+		setAppState(
+			state => ({
+				transferData: this.transferStatusUpdate(state, {
+					...ownershipToCheck,
+					...LoadState.fetching
+				})
+			}),
+			() => {
+				post(API.CHECK_OWNERSHIP, ownershipToCheck, {
+					signal: this.fetchAbortController.signal
+				})
+					.then(({ status }) => {
+						if (status === 200) {
+							setAppState(state => ({
+								transferData: this.transferStatusUpdate(state, {
+									...ownershipToCheck,
+									...LoadState.completed
+								})
+							}));
+						}
+					})
+					.catch(err => {
+						if (err.name === "AbortError") {
+							console.info(
+								"Check Ownership Fetch request was aborted."
+							);
+						}
+
+						setAppState(state => ({
+							transferData: this.transferStatusUpdate(state, {
+								...LoadState.initWithError(
+									"Error while checking for the ownership suitability"
+								),
+								...ownershipToCheck
+							})
+						}));
+					});
+			}
+		);
+	};
+
 	renderLoading = () => <div>Loading...</div>;
 
 	render() {
 		const {
-			loading,
 			onClickNext,
-			requiredTransferWorkspaces,
 			user,
-			transferData,
-			deleteWorkspaces,
-			onOwnerSelect
+			appState: {
+				transferData,
+				deleteWorkspaces,
+				requiredTransferWorkspaces,
+				loading
+			}
+			// onOwnerSelect
 		} = this.props;
 
 		const requiredTransferWorkspacesCount =
@@ -44,7 +123,7 @@ class TransferOwnerView extends React.PureComponent {
 		const disabledNextPage =
 			assignedWorkspacesCount < requiredTransferWorkspacesCount ||
 			isIncomplete ||
-			loading
+			loading;
 
 		return (
 			<div>
@@ -65,7 +144,7 @@ class TransferOwnerView extends React.PureComponent {
 							<SelectNewOwner
 								user={user}
 								transferData={transferData}
-								onOwnerSelect={onOwnerSelect}
+								onOwnerSelect={this.transferOwnershipCheck}
 							/>
 						</WorkspaceGroupRows>
 
@@ -115,4 +194,12 @@ WorkspaceGroupRows.propTypes = {
 	shouldDisplay: PropTypes.bool
 };
 
-export default TransferOwnerView;
+const TransferOwnerViewWrapper = props => (
+	<AppContext.Consumer>
+		{context => {
+			return <TransferOwnerView {...props} {...context} />;
+		}}
+	</AppContext.Consumer>
+);
+
+export default TransferOwnerViewWrapper;

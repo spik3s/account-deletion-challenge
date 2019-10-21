@@ -6,12 +6,10 @@ import TransferOwnerView from "../TransferOwnerView";
 import FeedbackView from "../FeedbackView";
 import * as LoadState from "../../services/LoadState";
 
-import { get, post } from "../../utils/fetch";
+import { get } from "../../utils/fetch";
 import * as VIEWS from "../../constants/views";
 import * as API from "../../constants/api";
 import { AppContext } from "../../AppContext";
-
-
 
 export default class Dialog extends React.Component {
 	static propTypes = {
@@ -99,102 +97,21 @@ export default class Dialog extends React.Component {
 			});
 	};
 
-	transferStatusUpdate = (currentState, transferStatus) => {
-		const { transferData } = currentState;
-		if (
-			!transferData.length ||
-			!transferData.some(
-				({ workspaceId }) => workspaceId === transferStatus.workspaceId
-			)
-		) {
-			return [...transferData, transferStatus];
-		}
-
-		return transferData.reduce((result, existingItem) => {
-			if (existingItem.workspaceId === transferStatus.workspaceId) {
-				result.push(transferStatus);
-				return result;
-			}
-			result.push(existingItem);
-
-			return result;
-		}, []);
-	};
-
-	transferOwnershipCheck = (workspace, toUser) => {
-		const { user } = this.props;
-		const ownershipToCheck = {
-			workspaceId: workspace.spaceId,
-			fromUserId: user._id,
-			toUserId: toUser._id
-		};
-		this.setState(
-			state => ({
-				transferData: this.transferStatusUpdate(state, {
-					...ownershipToCheck,
-					...LoadState.fetching
-				})
-			}),
-			() => {
-				post(API.CHECK_OWNERSHIP, ownershipToCheck, {
-					signal: this.fetchAbortController.signal
-				})
-					.then(({ status }) => {
-						if (status === 200) {
-							this.setState(state => ({
-								transferData: this.transferStatusUpdate(state, {
-									...ownershipToCheck,
-									...LoadState.completed
-								})
-							}));
-						}
-					})
-					.catch(err => {
-						if (err.name === "AbortError") {
-							console.info(
-								"Check Ownership Fetch request was aborted."
-							);
-						}
-
-						this.setState(state => ({
-							transferData: this.transferStatusUpdate(state, {
-								...LoadState.initWithError(
-									"Error while checking for the ownership suitability"
-								),
-								...ownershipToCheck
-							})
-						}));
-					});
-			}
-		);
-	};
-
 	render() {
-		const {
-			loading,
-			deleteWorkspaces,
-			requiredTransferWorkspaces,
-			activeModal,
-			transferData
-		} = this.state;
+		const { activeModal } = this.state;
 		const { user } = this.props;
 
 		return (
 			<AppContext.Provider
 				value={{
 					appState: this.state,
-					setAppState: obj => this.setState(obj)
+					setAppState: (obj, callback) => this.setState(obj, callback)
 				}}
 			>
 				{activeModal === VIEWS.TRANSFER && (
 					<TransferOwnerView
-						transferData={transferData}
 						user={user}
 						onClickNext={this.setNextView}
-						loading={loading}
-						requiredTransferWorkspaces={requiredTransferWorkspaces}
-						deleteWorkspaces={deleteWorkspaces}
-						onOwnerSelect={this.transferOwnershipCheck}
 					/>
 				)}
 				{activeModal === VIEWS.FEEDBACK && (
