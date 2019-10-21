@@ -114,7 +114,6 @@ export default class Dialog extends React.Component {
 				)}
 				{activeModal === VIEWS.FEEDBACK && (
 					<FeedbackView
-						title="Why would you leave us?"
 						onClickNext={this.setNextView}
 						onClickBack={this.setPreviousView}
 						showCommentForm

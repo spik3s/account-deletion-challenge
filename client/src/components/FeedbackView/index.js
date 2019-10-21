@@ -9,7 +9,6 @@ export class FeedbackView extends React.PureComponent {
 	static propTypes = {
 		onClickNext: PropTypes.func,
 		onClickBack: PropTypes.func,
-		title: PropTypes.node,
 		showCommentForm: PropTypes.bool,
 		appState: PropTypes.exact({
 			feedbackData: PropTypes.exact({
@@ -113,7 +112,6 @@ export class FeedbackView extends React.PureComponent {
 		});
 	};
 
-	// METHODS FOR FEEDBACK SURVEY
 	onChangeFeedback = event => {
 		const { type, name, value } = event.target;
 		const isCheckbox = type === "checkbox";
@@ -129,15 +127,13 @@ export class FeedbackView extends React.PureComponent {
 
 	render() {
 		const {
-			title,
-			// feedbackData,
 			showCommentForm,
 			onClickBack,
 			appState: { feedbackData }
 		} = this.props;
 		return (
 			<div>
-				<h1>{title}</h1>
+				<h1>Why would you leave us?</h1>
 				<div>
 					{feedbackAnswers.map((item, key) => (
 						<div key={`${item.stack}-${key}`}>
