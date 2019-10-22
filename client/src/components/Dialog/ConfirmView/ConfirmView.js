@@ -1,7 +1,7 @@
 import { func, string } from "prop-types";
 import React from "react";
 
-import * as API from "#src/constants/api";
+import { redirectOnComplete } from "#src/helpers/general";
 import * as LoadState from "#src/helpers/loadState";
 import { appStateType } from "#src/types";
 import { getTerminateAccountApiURL, handleApiErrors } from "#src/helpers/api";
@@ -84,10 +84,6 @@ export class ConfirmView extends React.PureComponent {
 					});
 			}
 		);
-	};
-
-	redirectOnComplete = () => {
-		window.location = "http://www.example.com/";
 	};
 
 	isDisabled = () => {

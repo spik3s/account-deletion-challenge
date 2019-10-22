@@ -9,6 +9,7 @@ import * as VIEWS from "#src/constants/views";
 import * as LoadState from "#src/helpers/loadState";
 import { get } from "#src/helpers/fetch";
 import { getWorkspacesApiURL, handleApiErrors } from "#src/helpers/api";
+import { redirectOnComplete } from "#src/helpers/general";
 import { userType } from "#src/types";
 
 export default class Dialog extends React.Component {
@@ -34,7 +35,7 @@ export default class Dialog extends React.Component {
 		if (this.props.user) {
 			this.fetchWorkspaces();
 		} else {
-			this.redirectToHomepage();
+			redirectOnComplete();
 		}
 	}
 
