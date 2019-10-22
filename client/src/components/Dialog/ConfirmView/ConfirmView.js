@@ -1,13 +1,13 @@
-import {func, string} from "prop-types";
+import { func, string } from "prop-types";
 import React from "react";
 
 import * as API from "#src/constants/api";
 import * as LoadState from "#src/helpers/loadState";
 import { appStateType } from "#src/types";
+import { getTerminateAccountApiURL, handleApiErrors } from "#src/helpers/api";
 import { post } from "#src/helpers/fetch";
 
 import { withDialogContext } from "../context";
-
 
 const INITIAL_STATE = {
 	confirmationCheckbox: false,
@@ -56,7 +56,7 @@ export class ConfirmView extends React.PureComponent {
 				terminateAccountStatus: LoadState.fetching
 			},
 			() => {
-				post(API.TERMINATE_ACCOUNT, payload, {
+				post(getTerminateAccountApiURL(), payload, {
 					signal: this.fetchAbortController.signal
 				})
 					.then(response => {
@@ -66,21 +66,21 @@ export class ConfirmView extends React.PureComponent {
 									...INITIAL_STATE
 								}),
 								() => {
-									this.redirectOnComplete();
+									redirectOnComplete();
 								}
 							);
 						}
 					})
 					.catch(err => {
-						console.log("Error", err.name);
-						this.setState({
-							...INITIAL_STATE,
-							terminateAccountStatus: LoadState.initWithError(
-								err.name === "AbortError"
-									? "Terminate Account Fetch request was aborted."
-									: "Error deleting account"
-							)
-						});
+						handleApiErrors(
+							err,
+							this.setState({
+								...INITIAL_STATE,
+								terminateAccountStatus: LoadState.initWithError(
+									"Error deleting account"
+								)
+							})
+						);
 					});
 			}
 		);
