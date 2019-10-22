@@ -5,7 +5,7 @@ export const appStateType = exact({
 		answers: array,
 		comment: string
 	}),
-	activeView: string,
+	dialogState: string,
 	transferData: arrayOf(
 		shape({
 			fromUserId: string.isRequired,
@@ -15,10 +15,7 @@ export const appStateType = exact({
 			error: string
 		})
 	),
-	workspacesLoadStatus: shape({
-		status: string.isRequired,
-		error: string
-	}),
+	error: string,
 	requiredTransferWorkspaces: array,
 	deleteWorkspaces: array
 }).isRequired;

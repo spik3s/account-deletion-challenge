@@ -11,8 +11,7 @@ import { withDialogContext } from "../context";
 
 const INITIAL_STATE = {
 	confirmationCheckbox: false,
-	confirmationEmail: "",
-	terminateAccountStatus: LoadState.pending
+	confirmationEmail: ""
 };
 
 export class ConfirmView extends React.PureComponent {
@@ -50,46 +49,31 @@ export class ConfirmView extends React.PureComponent {
 
 	terminateAccount = payload => {
 		// Note that there is 30% chance of getting error from the server
+		this.props.transition({ type: "SUBMIT_DELETE" });
 
-		this.setState(
-			{
-				terminateAccountStatus: LoadState.fetching
-			},
-			() => {
-				post(getTerminateAccountApiURL(), payload, {
-					signal: this.fetchAbortController.signal
-				})
-					.then(response => {
-						if (response.status === 200) {
-							this.setState(
-								state => ({
-									...INITIAL_STATE
-								}),
-								() => {
-									redirectOnComplete();
-								}
-							);
-						}
+		post(getTerminateAccountApiURL(), payload, {
+			signal: this.fetchAbortController.signal
+		})
+			.then(response => {
+				if (response.status === 200) {
+					this.props.transition({ type: "ACCOUNT_DELETED" });
+				}
+			})
+			.catch(err => {
+				handleApiErrors(
+					err,
+					this.props.transition({
+						error: "Error deleting the account",
+						type: "DELETION_ERRORED"
 					})
-					.catch(err => {
-						handleApiErrors(
-							err,
-							this.setState({
-								...INITIAL_STATE,
-								terminateAccountStatus: LoadState.initWithError(
-									"Error deleting account"
-								)
-							})
-						);
-					});
-			}
-		);
+				);
+			});
 	};
 
 	isDisabled = () => {
-		const { confirmationCheckbox, terminateAccountStatus } = this.state;
+		const { confirmationCheckbox, dialogState } = this.state;
 
-		if (LoadState.isLoading(terminateAccountStatus)) return true;
+		if (dialogState === "deletionSubmitted") return true;
 		if (confirmationCheckbox && this.isEmailValid()) return false;
 		return true;
 	};
@@ -108,11 +92,18 @@ export class ConfirmView extends React.PureComponent {
 		return this.props.email === this.state.confirmationEmail;
 	};
 
+	onClickBack = () => {
+		this.props.transition({ type: "BACK_TO_FEEDBACK" });
+	};
+
 	render() {
-		const { onClickBack, email } = this.props;
+		const {
+			email,
+			appState: { dialogState, error }
+		} = this.props;
 		const {
 			confirmationCheckbox,
-			terminateAccountStatus,
+
 			confirmationEmail
 		} = this.state;
 		return (
@@ -151,7 +142,7 @@ export class ConfirmView extends React.PureComponent {
 						I understand the consequences.
 					</label>
 				</div>
-				{terminateAccountStatus.error && (
+				{dialogState === "deletionErrored" && (
 					<div style={{ marginTop: "1rem" }}>
 						<span
 							style={{
@@ -159,12 +150,12 @@ export class ConfirmView extends React.PureComponent {
 								color: "#ff4500"
 							}}
 						>
-							{terminateAccountStatus.error}
+							{error}
 						</span>
 					</div>
 				)}
 				<div>
-					<button onClick={onClickBack}>Back</button>
+					<button onClick={this.onClickBack}>Back</button>
 					<button
 						onClick={this.onClickToDelete}
 						disabled={this.isDisabled()}

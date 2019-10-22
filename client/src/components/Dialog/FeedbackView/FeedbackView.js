@@ -1,4 +1,4 @@
-import { func, bool } from "prop-types";
+import { bool } from "prop-types";
 import React from "react";
 
 import { feedbackAnswers } from "#src/data/feedbackAnswers";
@@ -9,8 +9,6 @@ import { withDialogContext } from "../context";
 
 export class FeedbackView extends React.PureComponent {
 	static propTypes = {
-		onClickNext: func,
-		onClickBack: func,
 		showCommentForm: bool,
 		appState: appStateType
 	};
@@ -33,7 +31,7 @@ export class FeedbackView extends React.PureComponent {
 			appState: { feedbackData }
 		} = this.props;
 		submitSurvey(feedbackData);
-		this.props.onClickNext();
+		this.props.transition({ type: "GIVE_FEEDBACK" });
 	};
 
 	renderInputForm = ({ stack, canComment, placeHolder }) => {
@@ -122,10 +120,13 @@ export class FeedbackView extends React.PureComponent {
 		}
 	};
 
+	onClickBack = () => {
+		this.props.transition({type: "BACK_TO_WORKSPACES"})
+	}
+
 	render() {
 		const {
 			showCommentForm,
-			onClickBack,
 			appState: { feedbackData }
 		} = this.props;
 		return (
@@ -165,7 +166,7 @@ export class FeedbackView extends React.PureComponent {
 					</div>
 				)}
 				<div>
-					<button onClick={onClickBack}>Back</button>
+					<button onClick={this.onClickBack}>Back</button>
 					<button
 						onClick={this.onSubmit}
 						disabled={this.hasAllUnchecked()}

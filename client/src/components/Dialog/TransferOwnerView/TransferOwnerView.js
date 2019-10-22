@@ -1,4 +1,3 @@
-import { func } from "prop-types";
 import React from "react";
 
 import SelectNewOwner from "./SelectNewOwner";
@@ -7,8 +6,6 @@ import WorkspaceGroupRows from "./WorkspaceGroupRows";
 import * as API from "#src/constants/api";
 import * as LOAD_STATE from "#src/constants/loadStatus";
 import {
-	isLoading,
-	isError,
 	initWithError,
 	fetching,
 	completed
@@ -21,7 +18,6 @@ import { withDialogContext } from "../context";
 
 export class TransferOwnerView extends React.PureComponent {
 	static propTypes = {
-		onClickNext: func,
 		user: userType,
 		appState: appStateType
 	};
@@ -114,15 +110,19 @@ export class TransferOwnerView extends React.PureComponent {
 		return { transferData: updatedTransferData };
 	};
 
+	onClickNext = () => {
+		this.props.transition({type: "ASSIGN_WORKSPACES"})
+	}
+
 	render() {
 		const {
-			onClickNext,
 			user,
 			appState: {
 				transferData,
 				deleteWorkspaces,
 				requiredTransferWorkspaces,
-				workspacesLoadStatus
+				dialogState,
+				error
 			}
 		} = this.props;
 
@@ -133,7 +133,7 @@ export class TransferOwnerView extends React.PureComponent {
 		const disabledNextPage =
 			transferData.length < requiredTransferWorkspaces.length ||
 			hasIncompleteChecks ||
-			isLoading(workspacesLoadStatus);
+			dialogState === "workspacesLoading";
 
 		return (
 			<div>
@@ -143,15 +143,15 @@ export class TransferOwnerView extends React.PureComponent {
 					projects and workspace admin rights to other person.
 				</p>
 
-				{isLoading(workspacesLoadStatus) ? (
-					<div>Loading...</div>
-				) : isError(workspacesLoadStatus) ? (
+				{dialogState === "workspacesLoading" && <div>Loading...</div>}
+				{dialogState === "workspacesErrored" && (
 					<div>
 						<p style={{ color: "red" }}>
-							{workspacesLoadStatus.error}
+							{error}
 						</p>
 					</div>
-				) : (
+				)}
+				{dialogState === "workspacesLoaded" && (
 					<>
 						<WorkspaceGroupRows
 							workspaces={requiredTransferWorkspaces}
@@ -173,7 +173,7 @@ export class TransferOwnerView extends React.PureComponent {
 
 						<button
 							disabled={disabledNextPage}
-							onClick={onClickNext}
+							onClick={this.onClickNext}
 						>
 							Next
 						</button>
