@@ -1,5 +1,5 @@
 import * as API from "../constants/api";
-import { post } from "../utils/fetch";
+import { post } from "./fetch";
 
 const CANCEL_WORKSPACE = {
 	PAGE_ID: "48414504",

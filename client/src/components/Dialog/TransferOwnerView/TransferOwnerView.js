@@ -1,21 +1,23 @@
 import { func } from "prop-types";
 import React from "react";
-import { withAppContext } from "../../AppContext";
-import { post } from "../../utils/fetch";
-import { isEmpty, containsItemWithEqualProp } from "../../utils/general";
-import { appStateType, userType } from "../../types";
 
-import SelectNewOwner from "../SelectNewOwner";
-import WorkspaceGroupRows from "../WorkspaceGroupRows";
-import * as API from "../../constants/api";
-import * as LOAD_STATE from "../../constants/loadStatus";
+import SelectNewOwner from "./SelectNewOwner";
+import WorkspaceGroupRows from "./WorkspaceGroupRows";
+
+import * as API from "#src/constants/api";
+import * as LOAD_STATE from "#src/constants/loadStatus";
 import {
 	isLoading,
 	isError,
 	initWithError,
 	fetching,
 	completed
-} from "../../services/LoadState";
+} from "#src/services/loadState";
+import { appStateType, userType } from "#src/types";
+import { post } from "#src/utils/fetch";
+import { isEmpty, containsItemWithEqualProp } from "#src/utils/general";
+
+import { withDialogContext } from "../context";
 
 export class TransferOwnerView extends React.PureComponent {
 	static propTypes = {
@@ -27,7 +29,7 @@ export class TransferOwnerView extends React.PureComponent {
 	fetchAbortController = new AbortController();
 
 	transferOwnershipCheck = (workspace, toUser) => {
-		const { user, setAppState } = this.props;
+		const { user, setDialogState } = this.props;
 
 		const ownershipToCheck = {
 			workspaceId: workspace.spaceId,
@@ -35,7 +37,7 @@ export class TransferOwnerView extends React.PureComponent {
 			toUserId: toUser._id
 		};
 
-		setAppState(
+		setDialogState(
 			appState =>
 				this.makeNewTransferData(appState.transferData, {
 					...ownershipToCheck,
@@ -47,7 +49,7 @@ export class TransferOwnerView extends React.PureComponent {
 				})
 					.then(({ status }) => {
 						if (status === 200) {
-							setAppState(appState =>
+							setDialogState(appState =>
 								this.makeNewTransferData(
 									appState.transferData,
 									{
@@ -65,7 +67,7 @@ export class TransferOwnerView extends React.PureComponent {
 							);
 						}
 
-						setAppState(appState =>
+						setDialogState(appState =>
 							this.makeNewTransferData(appState.transferData, {
 								...initWithError(
 									"Error while checking for the ownership suitability"
@@ -182,4 +184,4 @@ export class TransferOwnerView extends React.PureComponent {
 	}
 }
 
-export default withAppContext(TransferOwnerView);
+export default withDialogContext(TransferOwnerView);

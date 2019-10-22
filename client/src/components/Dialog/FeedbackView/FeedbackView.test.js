@@ -1,9 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import Component, { FeedbackView } from ".";
 import { shallow, mount } from "enzyme";
-import { feedbackAnswers } from "../../data/feedbackAnswers";
-import { AppContext } from "../../AppContext";
+
+import { FeedbackView } from "./FeedbackView";
+
+import { feedbackAnswers } from "#src/data/feedbackAnswers";
 
 const feedbackDataEmpty = {
 	answers: [],
@@ -24,14 +25,10 @@ describe("FeedbackView", () => {
 	it("renders without crashing", () => {
 		const div = document.createElement("div");
 		ReactDOM.render(
-			<AppContext.Provider
-				value={{
-					appState: { feedbackData: feedbackDataEmpty },
-					setAppState: () => {}
-				}}
-			>
-				<Component />
-			</AppContext.Provider>,
+			<FeedbackView
+				appState={{ feedbackData: feedbackDataEmpty }}
+				setDialogState={() => {}}
+			/>,
 			div
 		);
 		ReactDOM.unmountComponentAtNode(div);
@@ -40,7 +37,7 @@ describe("FeedbackView", () => {
 		const wrapper = shallow(
 			<FeedbackView
 				appState={{ feedbackData: feedbackDataEmpty }}
-				setAppState={() => {}}
+				setDialogState={() => {}}
 			/>
 		);
 		const instance = wrapper.instance();
@@ -50,7 +47,9 @@ describe("FeedbackView", () => {
 
 		wrapper
 			.find(`input[type="checkbox"][name="${feedbackAnswers[0].stack}"]`)
-			.simulate("change", { target: { checked: true, type: "checkbox" } });
+			.simulate("change", {
+				target: { checked: true, type: "checkbox" }
+			});
 
 		expect(instance.onChangeFeedback).toHaveBeenCalledTimes(1);
 		expect(instance.updateFeedbackCheckedAnswers).toHaveBeenCalledTimes(1);
@@ -61,7 +60,7 @@ describe("FeedbackView", () => {
 		const wrapper = shallow(
 			<FeedbackView
 				appState={{ feedbackData: feedbackDataEmpty }}
-				setAppState={() => {}}
+				setDialogState={() => {}}
 			/>
 		);
 		const event = {
@@ -75,7 +74,9 @@ describe("FeedbackView", () => {
 		expect(wrapper.find('input[name="others"]').exists()).toBeTruthy();
 		wrapper.find('input[name="others"]').simulate("change", event);
 		expect(instance.onChangeFeedback).toHaveBeenCalledTimes(1);
-		expect(instance.updateFeedbackOtherAnswerValue).toHaveBeenCalledTimes(1);
+		expect(instance.updateFeedbackOtherAnswerValue).toHaveBeenCalledTimes(
+			1
+		);
 		wrapper.unmount();
 	});
 
@@ -83,7 +84,7 @@ describe("FeedbackView", () => {
 		const wrapper = mount(
 			<FeedbackView
 				appState={{ feedbackData: feedbackDataEmpty }}
-				setAppState={() => {}}
+				setDialogState={() => {}}
 				showCommentForm={true}
 			/>
 		);
@@ -105,7 +106,7 @@ describe("FeedbackView", () => {
 		const wrapper = shallow(
 			<FeedbackView
 				appState={{ feedbackData: feedbackDataEmpty }}
-				setAppState={() => {}}
+				setDialogState={() => {}}
 			/>
 		);
 		expect(wrapper.find("textarea").exists()).toBe(false);
@@ -118,7 +119,7 @@ describe("FeedbackView", () => {
 			<FeedbackView
 				onClickNext={onClickNext}
 				appState={{ feedbackData: feedbackDataEmpty }}
-				setAppState={() => {}}
+				setDialogState={() => {}}
 			/>
 		);
 
@@ -133,7 +134,7 @@ describe("FeedbackView", () => {
 			<FeedbackView
 				onClickNext={onClickNext}
 				appState={{ feedbackData: feedbackDataWithAnswer }}
-				setAppState={() => {}}
+				setDialogState={() => {}}
 			/>
 		);
 

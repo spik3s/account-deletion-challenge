@@ -1,8 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { TransferOwnerView } from ".";
 import { shallow, render, mount } from "enzyme";
-import * as LoadState from "../../services/LoadState";
+
+import { TransferOwnerView } from "./TransferOwnerView";
+
+import * as LoadState from "#src/services/loadState";
 
 const requiredTransferWorkspacesEmpty = [];
 const transferDataEmpty = [];
@@ -66,7 +68,7 @@ describe("TransferOwnerView", () => {
 					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
 					deleteWorkspaces: deleteWorkspacesEmpty
 				}}
-				setAppState={() => {}}
+				setDialogState={() => {}}
 			/>,
 			div
 		);
@@ -83,7 +85,7 @@ describe("TransferOwnerView", () => {
 					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
 					deleteWorkspaces: deleteWorkspacesEmpty
 				}}
-				setAppState={() => {}}
+				setDialogState={() => {}}
 			/>,
 			{ disableLifecycleMethods: true }
 		);
@@ -103,7 +105,7 @@ describe("TransferOwnerView", () => {
 						mockWorkspaces.requiredTransferWorkspaces,
 					deleteWorkspaces: mockWorkspaces.deleteWorkspaces
 				}}
-				setAppState={() => {}}
+				setDialogState={() => {}}
 			/>
 		);
 
@@ -123,7 +125,7 @@ describe("TransferOwnerView", () => {
 						mockWorkspaces.requiredTransferWorkspaces,
 					deleteWorkspaces: mockWorkspaces.deleteWorkspaces
 				}}
-				setAppState={() => {}}
+				setDialogState={() => {}}
 			/>
 		);
 
@@ -142,7 +144,7 @@ describe("TransferOwnerView", () => {
 					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
 					deleteWorkspaces: mockWorkspaces.deleteWorkspaces
 				}}
-				setAppState={() => {}}
+				setDialogState={() => {}}
 			/>
 		);
 
@@ -167,7 +169,7 @@ describe("TransferOwnerView", () => {
 						mockWorkspaces.requiredTransferWorkspaces,
 					deleteWorkspaces: deleteWorkspacesEmpty
 				}}
-				setAppState={() => {}}
+				setDialogState={() => {}}
 			/>
 		);
 
@@ -192,7 +194,7 @@ describe("TransferOwnerView", () => {
 						mockWorkspaces.requiredTransferWorkspaces,
 					deleteWorkspaces: deleteWorkspacesEmpty
 				}}
-				setAppState={() => {}}
+				setDialogState={() => {}}
 				onClickNext={onClickNextMock}
 			/>
 		);
@@ -214,7 +216,7 @@ describe("TransferOwnerView", () => {
 					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
 					deleteWorkspaces: deleteWorkspacesEmpty
 				}}
-				setAppState={() => {}}
+				setDialogState={() => {}}
 				onClickNext={onClickNextMock}
 			/>
 		);

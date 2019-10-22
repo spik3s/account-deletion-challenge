@@ -1,7 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import Component from ".";
-import { shallow,  } from "enzyme";
+import { shallow } from "enzyme";
+
+import SelectNewOwner from "./SelectNewOwner";
 
 const transferDataEmpty = [];
 
@@ -29,7 +30,7 @@ describe("SelectNewOwner", () => {
 	it("renders without crashing", () => {
 		const div = document.createElement("div");
 		ReactDOM.render(
-			<Component
+			<SelectNewOwner
 				user={user}
 				transferData={transferDataEmpty}
 				workspace={workspace}
@@ -42,7 +43,7 @@ describe("SelectNewOwner", () => {
 	it("calls a onOwnerSelect() when new owner is selected", () => {
 		const onOwnerSelect = jest.fn();
 		const wrapper = shallow(
-			<Component
+			<SelectNewOwner
 				user={user}
 				transferData={transferDataEmpty}
 				workspace={workspace}
@@ -50,8 +51,13 @@ describe("SelectNewOwner", () => {
 			/>
 		);
 
-		wrapper.find('select').simulate('change', {target: { value : 'user3'}});
-		expect(onOwnerSelect).toHaveBeenCalledWith(workspace, {"_id": "user3", "name": "Riker Lynch"});
+		wrapper
+			.find("select")
+			.simulate("change", { target: { value: "user3" } });
+		expect(onOwnerSelect).toHaveBeenCalledWith(workspace, {
+			_id: "user3",
+			name: "Riker Lynch"
+		});
 		expect(onOwnerSelect).toHaveBeenCalledTimes(1);
 	});
 });

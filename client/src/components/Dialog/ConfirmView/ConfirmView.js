@@ -1,11 +1,12 @@
 import {func, string} from "prop-types";
 import React from "react";
 
-import * as LoadState from "../../services/LoadState";
-import { post } from "../../utils/fetch";
-import * as API from "../../constants/api";
-import { withAppContext } from "../../AppContext";
-import { appStateType } from "../../types";
+import * as API from "#src/constants/api";
+import * as LoadState from "#src/services/loadState";
+import { appStateType } from "#src/types";
+import { post } from "#src/utils/fetch";
+
+import { withDialogContext } from "../context";
 
 
 const INITIAL_STATE = {
@@ -180,4 +181,4 @@ export class ConfirmView extends React.PureComponent {
 	}
 }
 
-export default withAppContext(ConfirmView);
+export default withDialogContext(ConfirmView);

@@ -1,10 +1,11 @@
 import { func, bool } from "prop-types";
 import React from "react";
 
-import { feedbackAnswers } from "../../data/feedbackAnswers";
-import { submitSurvey, isChecked } from "../../services/SurveyService";
-import { withAppContext } from "../../AppContext";
-import { appStateType } from "../../types";
+import { feedbackAnswers } from "#src/data/feedbackAnswers";
+import { submitSurvey, isChecked } from "#src/services/surveyService";
+import { appStateType } from "#src/types";
+
+import { withDialogContext } from "../context";
 
 export class FeedbackView extends React.PureComponent {
 	static propTypes = {
@@ -56,8 +57,8 @@ export class FeedbackView extends React.PureComponent {
 	};
 
 	updateFeedbackComment = value => {
-		const { setAppState } = this.props;
-		setAppState(({ feedbackData }) => {
+		const { setDialogState } = this.props;
+		setDialogState(({ feedbackData }) => {
 			return {
 				feedbackData: {
 					...feedbackData,
@@ -68,8 +69,8 @@ export class FeedbackView extends React.PureComponent {
 	};
 
 	updateFeedbackCheckedAnswers = inputName => {
-		const { setAppState } = this.props;
-		setAppState(({ feedbackData }) => {
+		const { setDialogState } = this.props;
+		setDialogState(({ feedbackData }) => {
 			return {
 				feedbackData: {
 					...feedbackData,
@@ -89,8 +90,8 @@ export class FeedbackView extends React.PureComponent {
 	};
 
 	updateFeedbackOtherAnswerValue = (inputName, value) => {
-		const { setAppState } = this.props;
-		setAppState(({ feedbackData }) => {
+		const { setDialogState } = this.props;
+		setDialogState(({ feedbackData }) => {
 			return {
 				feedbackData: {
 					...feedbackData,
@@ -177,4 +178,4 @@ export class FeedbackView extends React.PureComponent {
 	}
 }
 
-export default withAppContext(FeedbackView);
+export default withDialogContext(FeedbackView);

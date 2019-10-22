@@ -1,9 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { ConfirmView } from ".";
 import { shallow, mount } from "enzyme";
 
-describe("FeedbackView", () => {
+import { ConfirmView } from "./ConfirmView";
+
+describe("ConfirmView", () => {
 	it("renders without crashing", () => {
 		const div = document.createElement("div");
 		ReactDOM.render(<ConfirmView appState={{ transferData: [] }}/>, div);

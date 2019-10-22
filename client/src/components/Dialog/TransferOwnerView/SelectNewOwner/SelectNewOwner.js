@@ -1,9 +1,9 @@
 import {array, object, func} from "prop-types";
 import React from "react";
 
-import * as LoadState from "../../services/LoadState";
-import * as LOAD_STATE from "../../constants/loadStatus";
-import { userType } from "../../types";
+import * as LoadState from "#src/services/loadState";
+import * as LOAD_STATE from "#src/constants/loadStatus";
+import { userType } from "#src/types";
 
 export default class SelectNewOwner extends React.Component {
 	static propTypes = {

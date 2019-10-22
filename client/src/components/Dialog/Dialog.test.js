@@ -1,8 +1,8 @@
 import React from "react";
 import waitUntil from "async-wait-until";
-// import ReactDOM from "react-dom";
 import { shallow } from "enzyme";
-import Component from ".";
+
+import Dialog from "./Dialog";
 
 const mockWorkspaces = {
 	requiredTransferWorkspaces: [
@@ -72,7 +72,7 @@ describe("Testing main Dialog component", () => {
 				}
 			});
 		});
-		wrapper = shallow(<Component user={user} />);
+		wrapper = shallow(<Dialog user={user} />);
 		instance = wrapper.instance();
 	});
 
