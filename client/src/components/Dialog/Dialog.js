@@ -74,18 +74,19 @@ export default class Dialog extends React.Component {
 
 	onStateTransition = (nextDialogState, action) => {
 		switch (nextDialogState) {
-			case "workspacesLoaded":
-				if (action.type === "WORKSPACES_LOADED")
-					return {
-						deleteWorkspaces: action.deleteWorkspaces,
-						requiredTransferWorkspaces:
-							action.requiredTransferWorkspaces
-					};
-				return {};
 			case "workspacesLoading":
 				return {
 					error: ""
 				};
+			case "workspacesLoaded":
+				if (action.type === "WORKSPACES_LOADED")
+					return {
+						deleteWorkspaces: action.deleteWorkspaces,
+						error: "",
+						requiredTransferWorkspaces:
+							action.requiredTransferWorkspaces
+					};
+				return {};
 			case "workspacesErrored":
 				return {
 					error: action.error
