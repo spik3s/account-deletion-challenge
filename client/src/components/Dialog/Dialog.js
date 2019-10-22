@@ -5,9 +5,10 @@ import { DialogContext } from "./context";
 import FeedbackView from "./FeedbackView";
 import TransferOwnerView from "./TransferOwnerView";
 
-import * as LoadState from "#src/helpers/loadState";
 import * as VIEWS from "#src/constants/views";
+import * as LoadState from "#src/helpers/loadState";
 import { get } from "#src/helpers/fetch";
+import { getWorkspacesApiURL, handleApiErrors } from "#src/helpers/api";
 import { userType } from "#src/types";
 
 export default class Dialog extends React.Component {
@@ -31,7 +32,7 @@ export default class Dialog extends React.Component {
 
 	componentDidMount() {
 		if (this.props.user) {
-			this.fetchRelatedWorkspaces();
+			this.fetchWorkspaces();
 		} else {
 			this.redirectToHomepage();
 		}
@@ -41,7 +42,7 @@ export default class Dialog extends React.Component {
 		this.fetchAbortController.abort();
 	}
 
-	fetchRelatedWorkspaces = () => {
+	fetchWorkspaces = () => {
 		const { user } = this.props;
 
 		this.setState(
@@ -49,7 +50,7 @@ export default class Dialog extends React.Component {
 				workspacesLoadStatus: LoadState.fetching
 			},
 			() => {
-				get(`${API.WORKSPACES}?userId=${user._id}`, {
+				get(getWorkspacesApiURL(user._id), {
 					signal: this.fetchAbortController.signal
 				})
 					.then(
@@ -62,17 +63,14 @@ export default class Dialog extends React.Component {
 						}
 					)
 					.catch(err => {
-						if (err.name === "AbortError") {
-							console.info(
-								"Workspaces Fetch request was aborted."
-							);
-						} else {
+						handleApiErrors(
+							err,
 							this.setState({
 								workspacesLoadStatus: LoadState.initWithError(
 									"Error! Couldn't load the workspaces."
 								)
-							});
-						}
+							})
+						);
 					});
 			}
 		);
