@@ -4,7 +4,7 @@ import { shallow, render, mount } from "enzyme";
 
 import { TransferOwnerView } from "./TransferOwnerView";
 
-import * as LoadState from "#src/services/loadState";
+import * as LoadState from "#src/helpers/loadState";
 
 const requiredTransferWorkspacesEmpty = [];
 const transferDataEmpty = [];

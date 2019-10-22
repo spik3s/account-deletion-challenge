@@ -5,10 +5,9 @@ import { DialogContext } from "./context";
 import FeedbackView from "./FeedbackView";
 import TransferOwnerView from "./TransferOwnerView";
 
-import * as API from "#src/constants/api";
-import * as LoadState from "#src/services/loadState";
+import * as LoadState from "#src/helpers/loadState";
 import * as VIEWS from "#src/constants/views";
-import { get } from "#src/utils/fetch";
+import { get } from "#src/helpers/fetch";
 import { userType } from "#src/types";
 
 export default class Dialog extends React.Component {

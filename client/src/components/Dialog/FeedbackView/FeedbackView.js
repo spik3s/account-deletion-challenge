@@ -2,7 +2,7 @@ import { func, bool } from "prop-types";
 import React from "react";
 
 import { feedbackAnswers } from "#src/data/feedbackAnswers";
-import { submitSurvey, isChecked } from "#src/services/surveyService";
+import { submitSurvey, isChecked } from "#src/helpers/surveyService";
 import { appStateType } from "#src/types";
 
 import { withDialogContext } from "../context";

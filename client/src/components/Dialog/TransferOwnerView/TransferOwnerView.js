@@ -12,10 +12,10 @@ import {
 	initWithError,
 	fetching,
 	completed
-} from "#src/services/loadState";
+} from "#src/helpers/loadState";
 import { appStateType, userType } from "#src/types";
-import { post } from "#src/utils/fetch";
-import { isEmpty, containsItemWithEqualProp } from "#src/utils/general";
+import { post } from "#src/helpers/fetch";
+import { isEmpty, containsItemWithEqualProp } from "#src/helpers/general";
 
 import { withDialogContext } from "../context";
 

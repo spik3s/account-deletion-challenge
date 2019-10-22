@@ -2,9 +2,9 @@ import {func, string} from "prop-types";
 import React from "react";
 
 import * as API from "#src/constants/api";
-import * as LoadState from "#src/services/loadState";
+import * as LoadState from "#src/helpers/loadState";
 import { appStateType } from "#src/types";
-import { post } from "#src/utils/fetch";
+import { post } from "#src/helpers/fetch";
 
 import { withDialogContext } from "../context";
 
