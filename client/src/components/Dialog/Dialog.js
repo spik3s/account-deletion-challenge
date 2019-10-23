@@ -66,10 +66,6 @@ export default class Dialog extends React.Component {
 			});
 	};
 
-	setDialogState = (obj, callback) => {
-		this.setState(obj, callback);
-	};
-
 	transition = action => {
 		const { dialogState } = this.state;
 		const nextDialogState = stateMachine[dialogState][action.type];
@@ -89,7 +85,6 @@ export default class Dialog extends React.Component {
 			<DialogContext.Provider
 				value={{
 					appState: this.state,
-					setDialogState: this.setDialogState,
 					transition: this.transition
 				}}
 			>

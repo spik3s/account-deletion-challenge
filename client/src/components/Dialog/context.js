@@ -2,7 +2,7 @@ import React from "react";
 
 export const DialogContext = React.createContext({
 	appState: {},
-	setDialogState: () => {}
+	transition: () => {}
 });
 
 export const withDialogContext = Component => props => (
