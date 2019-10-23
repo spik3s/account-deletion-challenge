@@ -11,11 +11,9 @@ const stateMachine = {
 		OWNERSHIP_APPROVED: "workspacesLoaded",
 		OWNERSHIP_ERRORED: "workspacesLoaded",
 		ASSIGN_WORKSPACE: "workspacesLoaded",
-		WORKSPACES_ASSIGNED: "workspacesAssigned",
+		WORKSPACES_ASSIGNED: "workspacesAssigned"
 	},
-	workspacesErrored: {
-		RELOAD_WORKSPACES: "workspacesLoading"
-	},
+	workspacesErrored: {},
 	workspacesAssigned: {
 		TOGGLE_ANSWER_BOX: "workspacesAssigned",
 		ANSWER_OTHER: "workspacesAssigned",
@@ -32,7 +30,7 @@ const stateMachine = {
 		DELETION_ERRORED: "deletionErrored"
 	},
 	deletionErrored: {
-		SUBMIT_DELETE: "deletionSubmitted",
+		SUBMIT_DELETE: "deletionSubmitted"
 	},
 	accountDeleted: {
 		REDIRECT: "default"
