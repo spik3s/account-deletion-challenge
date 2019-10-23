@@ -1,10 +1,8 @@
 import { array, string, bool, exact, arrayOf, shape } from "prop-types";
 
 export const appStateType = exact({
-	feedbackData: exact({
-		answers: array,
-		comment: string
-	}),
+	feedbackDataAnswers: array,
+	feedbackDataComment: string,
 	dialogState: string,
 	transferData: arrayOf(
 		shape({

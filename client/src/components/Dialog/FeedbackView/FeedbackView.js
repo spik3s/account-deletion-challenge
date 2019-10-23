@@ -7,6 +7,8 @@ import { appStateType } from "#src/types";
 
 import { withDialogContext } from "../context";
 
+//  TODO: we could have state transition give feedback on change and finish feedback on next.
+// onChangeFeedback will prepare appropriate object for transition
 export class FeedbackView extends React.PureComponent {
 	static propTypes = {
 		showCommentForm: bool,
@@ -15,12 +17,12 @@ export class FeedbackView extends React.PureComponent {
 
 	hasAllUnchecked = () => {
 		const {
-			appState: { feedbackData }
+			appState: { feedbackDataAnswers }
 		} = this.props;
-		return !(feedbackData.answers.length > 0);
+		return !(feedbackDataAnswers.length > 0);
 	};
 
-	onSubmit = () => {
+	onClickNext = () => {
 		// While the specs are saying that user should be forced to take the exit survey
 		// there's no suggestion on what the behaviour should be in case of error.
 		// I decided that while I require users to give answers, I submit the results in
@@ -28,20 +30,20 @@ export class FeedbackView extends React.PureComponent {
 		// I think it would be a frustrating experience to be prevented from completing the
 		// original action because of exit survey error.
 		const {
-			appState: { feedbackData }
+			appState: { feedbackDataAnswers, feedbackDataComment }
 		} = this.props;
-		submitSurvey(feedbackData);
-		this.props.transition({ type: "GIVE_FEEDBACK" });
+		submitSurvey(feedbackDataAnswers, feedbackDataComment);
+		this.props.transition({ type: "FEEDBACK_COMPLETED" });
 	};
 
 	renderInputForm = ({ stack, canComment, placeHolder }) => {
 		const {
-			appState: { feedbackData }
+			appState: { feedbackDataAnswers }
 		} = this.props;
 		const prefill = placeHolder && canComment ? placeHolder : "";
-		const answer = feedbackData.answers.find(el => el.key === stack);
+		const answer = feedbackDataAnswers.find(el => el.key === stack);
 
-		return !isChecked(stack, feedbackData.answers) ? null : (
+		return !isChecked(stack, feedbackDataAnswers) ? null : (
 			<div>
 				<input
 					type="text"
@@ -55,55 +57,24 @@ export class FeedbackView extends React.PureComponent {
 	};
 
 	updateFeedbackComment = value => {
-		const { setDialogState } = this.props;
-		setDialogState(({ feedbackData }) => {
-			return {
-				feedbackData: {
-					...feedbackData,
-					comment: value
-				}
-			};
+		this.props.transition({
+			comment: value,
+			type: "GIVE_COMMENT"
 		});
 	};
 
 	updateFeedbackCheckedAnswers = inputName => {
-		const { setDialogState } = this.props;
-		setDialogState(({ feedbackData }) => {
-			return {
-				feedbackData: {
-					...feedbackData,
-					answers: isChecked(inputName, feedbackData.answers)
-						? feedbackData.answers.filter(
-								({ key }) => key !== inputName
-						  )
-						: [
-								...feedbackData.answers,
-								{
-									key: inputName
-								}
-						  ]
-				}
-			};
+		this.props.transition({
+			answer: inputName,
+			type: "TOGGLE_ANSWER_BOX"
 		});
 	};
 
 	updateFeedbackOtherAnswerValue = (inputName, value) => {
-		const { setDialogState } = this.props;
-		setDialogState(({ feedbackData }) => {
-			return {
-				feedbackData: {
-					...feedbackData,
-					answers: [
-						...feedbackData.answers.filter(
-							({ key }) => key !== inputName
-						),
-						{
-							key: inputName,
-							value: value
-						}
-					]
-				}
-			};
+		this.props.transition({
+			answer: inputName,
+			value: value,
+			type: "ANSWER_OTHER"
 		});
 	};
 
@@ -121,13 +92,13 @@ export class FeedbackView extends React.PureComponent {
 	};
 
 	onClickBack = () => {
-		this.props.transition({type: "BACK_TO_WORKSPACES"})
-	}
+		this.props.transition({ type: "BACK_TO_WORKSPACES" });
+	};
 
 	render() {
 		const {
 			showCommentForm,
-			appState: { feedbackData }
+			appState: { feedbackDataAnswers, feedbackDataComment }
 		} = this.props;
 		return (
 			<div>
@@ -141,7 +112,7 @@ export class FeedbackView extends React.PureComponent {
 									name={item.stack}
 									checked={isChecked(
 										item.stack,
-										feedbackData.answers
+										feedbackDataAnswers
 									)}
 									onChange={this.onChangeFeedback}
 								/>
@@ -160,7 +131,7 @@ export class FeedbackView extends React.PureComponent {
 								name="comment"
 								id="comments-box" // remove this and use name as a way to target the
 								onChange={this.onChangeFeedback}
-								value={feedbackData.comment}
+								value={feedbackDataComment}
 							/>
 						</div>
 					</div>
@@ -168,7 +139,7 @@ export class FeedbackView extends React.PureComponent {
 				<div>
 					<button onClick={this.onClickBack}>Back</button>
 					<button
-						onClick={this.onSubmit}
+						onClick={this.onClickNext}
 						disabled={this.hasAllUnchecked()}
 					>
 						Next

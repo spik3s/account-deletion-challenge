@@ -76,7 +76,7 @@ const getSurveyPayload = (answers, comment) => {
 	return surveyPayload;
 };
 
-export const submitSurvey = async ({ answers, comment }) => {
+export const submitSurvey = async (answers, comment) => {
 	const surveyPayload = getSurveyPayload(answers, comment);
 
 	const response = await post(API.SUBMIT_SURVEY, surveyPayload);

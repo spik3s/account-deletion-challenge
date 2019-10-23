@@ -17,7 +17,9 @@ const stateMachine = {
 		RELOAD_WORKSPACES: "workspacesLoading"
 	},
 	workspacesAssigned: {
-		GIVE_FEEDBACK: "workspacesAssigned",
+		TOGGLE_ANSWER_BOX: "workspacesAssigned",
+		ANSWER_OTHER: "workspacesAssigned",
+		GIVE_COMMENT: "workspacesAssigned",
 		FEEDBACK_COMPLETED: "feedbackGiven",
 		BACK_TO_WORKSPACES: "workspacesLoaded"
 	},
