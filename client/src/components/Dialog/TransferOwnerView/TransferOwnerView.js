@@ -51,7 +51,9 @@ export class TransferOwnerView extends React.PureComponent {
 			})
 			.catch(err => {
 				handleApiErrors(err, () => {
-					const relatedWorkspace = requiredTransferWorkspaces.find(el => el.spaceId === ownershipToCheck.workspaceId)
+					const relatedWorkspace = requiredTransferWorkspaces.find(
+						el => el.spaceId === ownershipToCheck.workspaceId
+					);
 					this.props.transition({
 						type: "OWNERSHIP_ERRORED",
 						transferDataItem: ownershipToCheck,
@@ -82,7 +84,7 @@ export class TransferOwnerView extends React.PureComponent {
 		const disabledNextPage =
 			dialogState === "workspacesLoading" ||
 			transferData.length < requiredTransferWorkspaces.length ||
-			error !== "" ||
+			(error !== undefined && error !== "") ||
 			!allApproved;
 
 		return (
