@@ -7,8 +7,6 @@ import { appStateType } from "#src/types";
 
 import { withDialogContext } from "../context";
 
-//  TODO: we could have state transition give feedback on change and finish feedback on next.
-// onChangeFeedback will prepare appropriate object for transition
 export class FeedbackView extends React.PureComponent {
 	static propTypes = {
 		showCommentForm: bool,
