@@ -1,4 +1,4 @@
-import { array, string, exact, arrayOf, shape } from "prop-types";
+import { array, string, bool, exact, arrayOf, shape } from "prop-types";
 
 export const appStateType = exact({
 	feedbackData: exact({
@@ -9,10 +9,9 @@ export const appStateType = exact({
 	transferData: arrayOf(
 		shape({
 			fromUserId: string.isRequired,
-			status: string.isRequired,
 			toUserId: string.isRequired,
 			workspaceId: string.isRequired,
-			error: string
+			approved: bool.isRequired
 		})
 	),
 	error: string,

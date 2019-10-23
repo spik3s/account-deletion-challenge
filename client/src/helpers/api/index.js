@@ -4,6 +4,7 @@ export const getWorkspacesApiURL = userId =>
 	`${API.WORKSPACES}?userId=${userId}`;
 
 export const getTerminateAccountApiURL = userId => API.TERMINATE_ACCOUNT;
+export const getCheckOwnershipApiURL = userId => API.CHECK_OWNERSHIP;
 
 export const handleApiErrors = (error, callback) => {
 	if (error.name === "AbortError") {

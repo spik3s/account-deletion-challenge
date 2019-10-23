@@ -8,7 +8,7 @@ import TransferOwnerView from "./TransferOwnerView";
 import stateMachine, { initialDialogState } from "./stateMachine";
 import { get } from "#src/helpers/fetch";
 import { getWorkspacesApiURL, handleApiErrors } from "#src/helpers/api";
-import { redirectOnComplete } from "#src/helpers/general";
+import { redirectOnComplete, addOrUpdate } from "#src/helpers/general";
 import { userType } from "#src/types";
 
 export default class Dialog extends React.Component {
@@ -72,6 +72,7 @@ export default class Dialog extends React.Component {
 		this.setState(obj, callback);
 	};
 
+
 	onStateTransition = (nextDialogState, action) => {
 		switch (nextDialogState) {
 			case "workspacesLoading":
@@ -79,13 +80,34 @@ export default class Dialog extends React.Component {
 					error: ""
 				};
 			case "workspacesLoaded":
-				if (action.type === "WORKSPACES_LOADED")
+				if (action.type === "WORKSPACES_LOADED") {
 					return {
 						deleteWorkspaces: action.deleteWorkspaces,
 						error: "",
 						requiredTransferWorkspaces:
 							action.requiredTransferWorkspaces
 					};
+				} else if (action.type === "CHECKING_OWNERSHIP") {
+					return {
+						error: "",
+						transferData: addOrUpdate(this.state.transferData, action.transferDataItem)
+					};
+				} else if (action.type === "OWNERSHIP_APPROVED") {
+					return {
+						transferData: addOrUpdate(this.state.transferData, action.transferDataItem)
+					};
+				} else if (action.type === "OWNERSHIP_ERRORED") {
+					return {
+						error: action.error,
+						transferData: this.state.transferData.filter(item => {
+							return (
+								item.workspaceId !==
+								action.transferDataItem.workspaceId
+							);
+						})
+					};
+				}
+
 				return {};
 			case "workspacesErrored":
 				return {

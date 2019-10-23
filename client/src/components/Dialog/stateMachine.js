@@ -7,13 +7,18 @@ const stateMachine = {
 		WORKSPACES_ERRORED: "workspacesErrored"
 	},
 	workspacesLoaded: {
-		ASSIGN_WORKSPACES: "workspacesAssigned"
+		CHECKING_OWNERSHIP: "workspacesLoaded",
+		OWNERSHIP_APPROVED: "workspacesLoaded",
+		OWNERSHIP_ERRORED: "workspacesLoaded",
+		ASSIGN_WORKSPACE: "workspacesLoaded",
+		WORKSPACES_ASSIGNED: "workspacesAssigned",
 	},
 	workspacesErrored: {
 		RELOAD_WORKSPACES: "workspacesLoading"
 	},
 	workspacesAssigned: {
-		GIVE_FEEDBACK: "feedbackGiven",
+		GIVE_FEEDBACK: "workspacesAssigned",
+		FEEDBACK_COMPLETED: "feedbackGiven",
 		BACK_TO_WORKSPACES: "workspacesLoaded"
 	},
 	feedbackGiven: {

@@ -3,16 +3,10 @@ import React from "react";
 import SelectNewOwner from "./SelectNewOwner";
 import WorkspaceGroupRows from "./WorkspaceGroupRows";
 
-import * as API from "#src/constants/api";
-import * as LOAD_STATE from "#src/constants/loadStatus";
-import {
-	initWithError,
-	fetching,
-	completed
-} from "#src/helpers/loadState";
+import { getCheckOwnershipApiURL, handleApiErrors } from "#src/helpers/api";
 import { appStateType, userType } from "#src/types";
 import { post } from "#src/helpers/fetch";
-import { isEmpty, containsItemWithEqualProp } from "#src/helpers/general";
+import { isEmpty } from "#src/helpers/general";
 
 import { withDialogContext } from "../context";
 
@@ -25,94 +19,51 @@ export class TransferOwnerView extends React.PureComponent {
 	fetchAbortController = new AbortController();
 
 	transferOwnershipCheck = (workspace, toUser) => {
-		const { user, setDialogState } = this.props;
+		const {
+			user,
+			appState: { requiredTransferWorkspaces }
+		} = this.props;
 
 		const ownershipToCheck = {
 			workspaceId: workspace.spaceId,
 			fromUserId: user._id,
-			toUserId: toUser._id
+			toUserId: toUser._id,
+			approved: false
 		};
+		this.props.transition({
+			transferDataItem: ownershipToCheck,
+			type: "CHECKING_OWNERSHIP"
+		});
 
-		setDialogState(
-			appState =>
-				this.makeNewTransferData(appState.transferData, {
-					...ownershipToCheck,
-					...fetching
-				}),
-			() => {
-				post(API.CHECK_OWNERSHIP, ownershipToCheck, {
-					signal: this.fetchAbortController.signal
-				})
-					.then(({ status }) => {
-						if (status === 200) {
-							setDialogState(appState =>
-								this.makeNewTransferData(
-									appState.transferData,
-									{
-										...ownershipToCheck,
-										...completed
-									}
-								)
-							);
-						}
-					})
-					.catch(err => {
-						if (err.name === "AbortError") {
-							console.info(
-								"Check Ownership Fetch request was aborted."
-							);
-						}
-
-						setDialogState(appState =>
-							this.makeNewTransferData(appState.transferData, {
-								...initWithError(
-									"Error while checking for the ownership suitability"
-								),
-								...ownershipToCheck
-							})
-						);
+		post(getCheckOwnershipApiURL(), ownershipToCheck, {
+			signal: this.fetchAbortController.signal
+		})
+			.then(({ status }) => {
+				if (status === 200) {
+					this.props.transition({
+						transferDataItem: {
+							...ownershipToCheck,
+							approved: true
+						},
+						type: "OWNERSHIP_APPROVED"
 					});
-			}
-		);
-	};
-
-	makeNewTransferData = (currentTransferData, newTransferDetails) => {
-		if (
-			isEmpty(currentTransferData) ||
-			!containsItemWithEqualProp(
-				currentTransferData,
-				newTransferDetails,
-				"workspaceId"
-			)
-		) {
-			return {
-				transferData: [...currentTransferData, newTransferDetails]
-			};
-		}
-
-		const updatedTransferData = currentTransferData.reduce(
-			(newList, existingItem) => {
-				// if object with workspaceId of new object already exists, replace it with new object
-				if (
-					existingItem.workspaceId === newTransferDetails.workspaceId
-				) {
-					newList.push(newTransferDetails);
-					return newList;
 				}
-				// keep the existing objects that represent other workspaces
-				newList.push(existingItem);
-
-				return newList;
-			},
-			[]
-		);
-
-		return { transferData: updatedTransferData };
+			})
+			.catch(err => {
+				handleApiErrors(err, () => {
+					const relatedWorkspace = requiredTransferWorkspaces.find(el => el.spaceId === ownershipToCheck.workspaceId)
+					this.props.transition({
+						type: "OWNERSHIP_ERRORED",
+						transferDataItem: ownershipToCheck,
+						error: `Error while checking for the ownership suitability for workspace ${relatedWorkspace.displayName}. Please select a different user.`
+					});
+				});
+			});
 	};
 
 	onClickNext = () => {
-		this.props.transition({type: "ASSIGN_WORKSPACES"})
-	}
+		this.props.transition({ type: "WORKSPACES_ASSIGNED" });
+	};
 
 	render() {
 		const {
@@ -126,14 +77,13 @@ export class TransferOwnerView extends React.PureComponent {
 			}
 		} = this.props;
 
-		const hasIncompleteChecks = transferData.some(
-			el => el.status !== LOAD_STATE.COMPLETED
-		);
+		const allApproved = !transferData.some(el => !el.approved);
 
 		const disabledNextPage =
+			dialogState === "workspacesLoading" ||
 			transferData.length < requiredTransferWorkspaces.length ||
-			hasIncompleteChecks ||
-			dialogState === "workspacesLoading";
+			error !== "" ||
+			!allApproved;
 
 		return (
 			<div>
@@ -146,9 +96,7 @@ export class TransferOwnerView extends React.PureComponent {
 				{dialogState === "workspacesLoading" && <div>Loading...</div>}
 				{dialogState === "workspacesErrored" && (
 					<div>
-						<p style={{ color: "red" }}>
-							{error}
-						</p>
+						<p style={{ color: "red" }}>{error}</p>
 					</div>
 				)}
 				{dialogState === "workspacesLoaded" && (
@@ -162,8 +110,20 @@ export class TransferOwnerView extends React.PureComponent {
 								user={user}
 								transferData={transferData}
 								onOwnerSelect={this.transferOwnershipCheck}
+								error={error}
 							/>
 						</WorkspaceGroupRows>
+
+						{error && (
+							<div
+								style={{
+									marginTop: "1rem",
+									color: "#ff4500"
+								}}
+							>
+								{error}
+							</div>
+						)}
 
 						<WorkspaceGroupRows
 							workspaces={deleteWorkspaces}

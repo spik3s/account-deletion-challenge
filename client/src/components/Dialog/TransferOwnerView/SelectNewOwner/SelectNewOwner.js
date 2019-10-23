@@ -1,4 +1,4 @@
-import {array, object, func} from "prop-types";
+import { array, object, func } from "prop-types";
 import React from "react";
 
 import * as LoadState from "#src/helpers/loadState";
@@ -31,49 +31,9 @@ export default class SelectNewOwner extends React.Component {
 		onOwnerSelect(workspace, user);
 	};
 
-	renderStatus = (currentStatus) => {
-		switch (currentStatus.status) {
-			case LOAD_STATE.FETCHING:
-				return (
-					<span
-						style={{
-							marginLeft: "1rem"
-						}}
-					>
-						checking...
-					</span>
-				);
-			case LOAD_STATE.COMPLETED:
-				return (
-					<span
-						style={{
-							marginLeft: "1rem"
-						}}
-					>
-						OK!
-					</span>
-				);
-			case LOAD_STATE.ERROR:
-				return (
-					<span
-						style={{
-							marginLeft: "1rem",
-							color: "#ff4500"
-						}}
-					>
-						{currentStatus.error}
-					</span>
-				);
-			default:
-				return null;
-		}
-	};
-
 	render() {
-		const { workspace, transferData } = this.props;
-		const currentStatus = transferData.find(
-			status => status.workspaceId === workspace.spaceId
-		);
+		const { workspace } = this.props;
+		
 		return (
 			<div style={{ cursor: "pointer" }}>
 				<select
@@ -89,9 +49,7 @@ export default class SelectNewOwner extends React.Component {
 							{user.name}
 						</option>
 					))}
-				</select>
-
-				{currentStatus && this.renderStatus(currentStatus)}
+				</select>				
 			</div>
 		);
 	}
