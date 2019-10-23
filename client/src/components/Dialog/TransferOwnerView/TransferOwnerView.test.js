@@ -57,13 +57,13 @@ const mockWorkspaces = {
 };
 
 describe("TransferOwnerView", () => {
+	
 	it("renders without crashing", () => {
 		const div = document.createElement("div");
 		ReactDOM.render(
 			<TransferOwnerView
 				user={user}
 				appState={{
-					workspacesLoadStatus: LoadState.pending,
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
 					deleteWorkspaces: deleteWorkspacesEmpty
@@ -80,7 +80,7 @@ describe("TransferOwnerView", () => {
 			<TransferOwnerView
 				user={user}
 				appState={{
-					workspacesLoadStatus: LoadState.fetching,
+					dialogState: "workspacesLoading",
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
 					deleteWorkspaces: deleteWorkspacesEmpty
@@ -99,7 +99,7 @@ describe("TransferOwnerView", () => {
 			<TransferOwnerView
 				user={user}
 				appState={{
-					workspacesLoadStatus: LoadState.completed,
+					dialogState: "workspacesLoaded",
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces:
 						mockWorkspaces.requiredTransferWorkspaces,
@@ -119,7 +119,7 @@ describe("TransferOwnerView", () => {
 			<TransferOwnerView
 				user={user}
 				appState={{
-					workspacesLoadStatus: LoadState.completed,
+					dialogState: "workspacesLoaded",
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces:
 						mockWorkspaces.requiredTransferWorkspaces,
@@ -139,7 +139,6 @@ describe("TransferOwnerView", () => {
 			<TransferOwnerView
 				user={user}
 				appState={{
-					workspacesLoadStatus: LoadState.completed,
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
 					deleteWorkspaces: mockWorkspaces.deleteWorkspaces
@@ -163,7 +162,7 @@ describe("TransferOwnerView", () => {
 			<TransferOwnerView
 				user={user}
 				appState={{
-					workspacesLoadStatus: LoadState.completed,
+					dialogState: "workspacesLoaded",
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces:
 						mockWorkspaces.requiredTransferWorkspaces,
@@ -183,47 +182,49 @@ describe("TransferOwnerView", () => {
 	});
 
 	it("must not allow to proceed if there's been an error checking a workspace or not all workspaces have been chosen for reassignment", () => {
-		const onClickNextMock = jest.fn();
 		const wrapper = mount(
 			<TransferOwnerView
 				user={user}
 				appState={{
-					workspacesLoadStatus: LoadState.completed,
+					dialogState: "workspacesLoaded",
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces:
 						mockWorkspaces.requiredTransferWorkspaces,
 					deleteWorkspaces: deleteWorkspacesEmpty
 				}}
-				setDialogState={() => {}}
-				onClickNext={onClickNextMock}
 			/>
 		);
-
+		const instance = wrapper.instance();
+		jest.spyOn(instance, "onClickNext");
+		instance.forceUpdate();
 		wrapper.find("button").simulate("click");
 
-		expect(onClickNextMock).toHaveBeenCalledTimes(0);
+		expect(instance.onClickNext).toHaveBeenCalledTimes(0);
 		wrapper.unmount();
 	});
 
 	it("must allow to proceed if loading has finished but list of workspaces is empty", () => {
-		const onClickNextMock = jest.fn();
+		const transition = jest.fn();
 		const wrapper = mount(
 			<TransferOwnerView
 				user={user}
 				appState={{
-					workspacesLoadStatus: LoadState.completed,
+					dialogState: "workspacesLoaded",
 					transferData: transferDataEmpty,
 					requiredTransferWorkspaces: requiredTransferWorkspacesEmpty,
 					deleteWorkspaces: deleteWorkspacesEmpty
 				}}
-				setDialogState={() => {}}
-				onClickNext={onClickNextMock}
+				transition={transition}
 			/>
 		);
 
-		wrapper.find("button").simulate("click");
+		const instance = wrapper.instance();
+		jest.spyOn(instance, "onClickNext");
+		instance.forceUpdate();
+		const button = wrapper.find('button[children="Next"]');
+		button.simulate("click");
 
-		expect(onClickNextMock).toHaveBeenCalledTimes(1);
+		expect(instance.onClickNext).toHaveBeenCalledTimes(1);
 		wrapper.unmount();
 	});
 });

@@ -77,9 +77,9 @@ describe("Testing main Dialog component", () => {
 	});
 
 	it("should check if fetchRelatedWorkspaces is called in `componentDidMount()`", () => {
-		jest.spyOn(instance, "fetchRelatedWorkspaces"); // You spy on the randomFunction
+		jest.spyOn(instance, "fetchWorkspaces");
 		instance.componentDidMount();
-		expect(instance.fetchRelatedWorkspaces).toHaveBeenCalledTimes(1); // You check if the condition you want to match is correct.
+		expect(instance.fetchWorkspaces).toHaveBeenCalledTimes(1); // You check if the condition you want to match is correct.
 	});
 
 	it("should check if workspaces data is loaded correctly to state", async () => {

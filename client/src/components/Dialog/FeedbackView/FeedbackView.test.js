@@ -7,26 +7,27 @@ import { FeedbackView } from "./FeedbackView";
 import { feedbackAnswers } from "#src/data/feedbackAnswers";
 
 const feedbackDataEmpty = {
-	answers: [],
-	comment: ""
+	feedbackDataAnswers: [],
+	feedbackDataComment: ""
 };
 
 const feedbackDataWithAnswer = {
-	answers: [
+	feedbackDataAnswers: [
 		{
 			key: "prefer_other_apps",
 			value: ""
 		}
 	],
-	comment: ""
+	feedbackDataComment: ""
 };
 
 describe("FeedbackView", () => {
+	const transition = jest.fn();
 	it("renders without crashing", () => {
 		const div = document.createElement("div");
 		ReactDOM.render(
 			<FeedbackView
-				appState={{ feedbackData: feedbackDataEmpty }}
+				appState={feedbackDataEmpty}
 				setDialogState={() => {}}
 			/>,
 			div
@@ -36,8 +37,8 @@ describe("FeedbackView", () => {
 	it("calls onChangeFeedback() when checkbox is selected", () => {
 		const wrapper = shallow(
 			<FeedbackView
-				appState={{ feedbackData: feedbackDataEmpty }}
-				setDialogState={() => {}}
+				appState={feedbackDataEmpty}
+				transition={transition}
 			/>
 		);
 		const instance = wrapper.instance();
@@ -59,8 +60,8 @@ describe("FeedbackView", () => {
 	it("calls onChangeFeedback() & updateFeedbackOtherAnswerValue() when typing in 'others' input field ", () => {
 		const wrapper = shallow(
 			<FeedbackView
-				appState={{ feedbackData: feedbackDataEmpty }}
-				setDialogState={() => {}}
+				appState={feedbackDataEmpty}
+				transition={transition}
 			/>
 		);
 		const event = {
@@ -83,8 +84,8 @@ describe("FeedbackView", () => {
 	it("calls onChangeFeedback() & updateFeedbackComment() when comment is typed", () => {
 		const wrapper = mount(
 			<FeedbackView
-				appState={{ feedbackData: feedbackDataEmpty }}
-				setDialogState={() => {}}
+				appState={feedbackDataEmpty}
+				transition={transition}
 				showCommentForm={true}
 			/>
 		);
@@ -105,8 +106,8 @@ describe("FeedbackView", () => {
 	it("doesn't display when comment field if showCommentForm is not true", () => {
 		const wrapper = shallow(
 			<FeedbackView
-				appState={{ feedbackData: feedbackDataEmpty }}
-				setDialogState={() => {}}
+				appState={feedbackDataEmpty}
+				transition={transition}
 			/>
 		);
 		expect(wrapper.find("textarea").exists()).toBe(false);
@@ -114,17 +115,18 @@ describe("FeedbackView", () => {
 	});
 
 	it("prevents from proceeding to next view without selecting at least one answer", () => {
-		const onClickNext = jest.fn();
 		const wrapper = mount(
 			<FeedbackView
-				onClickNext={onClickNext}
-				appState={{ feedbackData: feedbackDataEmpty }}
-				setDialogState={() => {}}
+				appState={feedbackDataEmpty}
+				transition={transition}
 			/>
 		);
+		const instance = wrapper.instance();
+		jest.spyOn(instance, "onClickNext");
+		instance.forceUpdate();
 
 		wrapper.find('button[children="Next"]').simulate("click");
-		expect(onClickNext).toHaveBeenCalledTimes(0);
+		expect(instance.onClickNext).toHaveBeenCalledTimes(0);
 		wrapper.unmount();
 	});
 
@@ -133,13 +135,17 @@ describe("FeedbackView", () => {
 		const wrapper = mount(
 			<FeedbackView
 				onClickNext={onClickNext}
-				appState={{ feedbackData: feedbackDataWithAnswer }}
-				setDialogState={() => {}}
+				appState={feedbackDataWithAnswer}
+				transition={transition}
 			/>
 		);
 
+		const instance = wrapper.instance();
+		jest.spyOn(instance, "onClickNext");
+		instance.forceUpdate();
+
 		wrapper.find('button[children="Next"]').simulate("click");
-		expect(onClickNext).toHaveBeenCalledTimes(1);
+		expect(instance.onClickNext).toHaveBeenCalledTimes(1);
 		wrapper.unmount();
 	});
 
