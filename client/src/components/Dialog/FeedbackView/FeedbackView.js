@@ -23,10 +23,12 @@ export class FeedbackView extends React.PureComponent {
 	onClickNext = () => {
 		// While the specs are saying that user should be forced to take the exit survey
 		// there's no suggestion on what the behaviour should be in case of error.
-		// I decided that while I require users to give answers, I submit the results in
+		// I decided that for now, while I require users to give answers, I submit the results in
 		// a non-blocking manner that will swallow potential errors (display to console).
 		// I think it would be a frustrating experience to be prevented from completing the
-		// original action because of exit survey error.
+		// original action because of exit survey error. Better solution would be to submit the
+		// feedback together with list of workspaces to transfer and handle rest on our server. 
+		// That would prevent user from submitting the feedback more than once.
 		const {
 			appState: { feedbackDataAnswers, feedbackDataComment }
 		} = this.props;
