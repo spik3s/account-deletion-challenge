@@ -1,3 +1,20 @@
+### Note from the developer
+
+I've approached this task by splitting overall process of refactoring into two parts:
+
+1. Getting it to run
+2. Refactor and clean up the code
+
+Due to the fact that I'm currently very busy at my current job, I tried to complete as much improvements as possible, trying to work on the task any time I had inbetween my other projects, very often while waiting for the code to compile or tests to finish. This is reflected by format and nature of my git commits (short comments, many of them). Ultimately, I'd edit and rebase them.
+
+Besides the most obvious bugs, my main concern was finding a better way to manage the state of the application. I tried to lift it up wherever possible and then use Context API to make it easier to structure the code in a way that's gonna be easier to maintain. Eventually I decided that might be not enough and added a simple state machine that helped with all transitions between the states and limited places in code where we call setState to minimum.
+
+I left a comment inside regarding the way how the feedback results could be submitted to SurveyMonkey. As the specification stated that the user can freely go back and forth between different steps in the app, I am concerned that if we submit the results at the end of step 2, going back will lead to duplicated feedback submissions. Easiest solution would be to submit the results in the final step to the API, however that's adding work to our server that by definition should be done inside a client (IMHO). Similarly, I have concerns regarding the error handling on feedback submission - hiding errors isn't a solution at all, however I think the priority task that user tries to accomplish here is to delete their account and the overall flow should make sure we deal with the errors in a way that does not prevent/obstructs the path to complete the task.
+
+Last, but not least. I provided the app with a list of tests. As a next step I would further optimise them and refactor their code and minimise number of times we have to mount/render the wrappers and try to use shallow rendering wherever possible to speed the testing up.
+
+The code review is by no means complete, there's still quite a few things that I'd like to change but I'm unable to under current time pressure. I hope, overall, it will give you an idea where I'm going with it and shows you the level of skill and experience I have. It would be great to discuss the decisions I've made throughout over a conversation.
+
 ### Preface
 
 This repository demonstrates bad code that was previously used in Taskworld. The ultimate goal of this web is allowing users to delete their account, but before doing so, they must transfer their ownership to another user and do our exit survey. To confirm the account deletion, users need to type their emails, and tick the acknowledgment check-box. After deleting accounts, users will be redirected to `www.example.com`.
@@ -33,6 +50,7 @@ You can go back and forth through the steps anytime, but the whole process is co
 ### Expectations
 
 You will be judged by the following criteria.
+
 - Functionality is correct with respect to the specifications, while breaking changes are acceptable only if rational.
 - Bugs are fixed as many as possible. It should be hard for the reviewers to find a remaining bug.
 - Good software engineering principles are followed, for example, [SOLID principles](https://en.wikipedia.org/wiki/SOLID).
